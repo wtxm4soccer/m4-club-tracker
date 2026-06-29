@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --font-barlow: 'Barlow Condensed', sans-serif;
+  --font-inter:  'Inter', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: #F6F3EE;
+  color: #0A0A0A;
+  font-family: 'Inter', -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.01em;
+}
+
+@layer utilities {
+  .font-display {
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+}

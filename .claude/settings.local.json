@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat \"C:\\\\Users\\\\levih\\\\AppData\\\\Local\\\\Temp\\\\spec_doc.xml\" | sed 's/<[^>]*>//g' | tr -s ' \\\\n' '\\\\n' | tail -n +900)",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"C:\\\\Users\\\\levih\\\\OneDrive\\\\M4 Soccer Academy\\\\M4 App\\\\supabase\\\\migrations\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"C:\\\\Users\\\\levih\\\\OneDrive\\\\M4 Soccer Academy\\\\M4 App\\\\supabase\\\\seed\")",
+      "Bash(npm install *)"
+    ]
+  }
+}
