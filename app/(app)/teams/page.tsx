@@ -149,49 +149,49 @@ export default function TeamsPage() {
               style={{ background: '#fff', boxShadow: '0 1px 2px rgba(21,21,26,0.06), 0 4px 14px rgba(21,21,26,0.06)', borderLeft: '4px solid #0A0A0A' }}
             >
               {/* Team header row */}
-              <div className="px-4 py-3 flex items-center justify-between gap-2">
-                <button
-                  className="flex-1 flex items-center gap-3 text-left"
-                  onClick={() => setExpanded(prev => ({ ...prev, [team.id]: !prev[team.id] }))}
-                >
+              <div className="px-3 py-3">
+                <div className="flex items-center gap-2">
+                  {/* Mascot */}
                   {team.photo_url ? (
                     <img src={team.photo_url} alt={team.name}
-                      style={{ width: 40, height: 40, objectFit: 'contain', borderRadius: 6, flexShrink: 0 }} />
+                      style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 6, flexShrink: 0 }} />
                   ) : (
-                    <div style={{ width: 40, height: 40, borderRadius: 6, background: '#F6F3EE', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 6, background: '#F6F3EE', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
                       ⚽
                     </div>
                   )}
-                  <div>
-                    <span
-                      className="text-lg font-bold uppercase leading-none"
-                      style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}
-                    >
+                  {/* Name + division — tappable to expand */}
+                  <button
+                    className="flex-1 text-left min-w-0"
+                    onClick={() => setExpanded(prev => ({ ...prev, [team.id]: !prev[team.id] }))}
+                  >
+                    <div className="font-bold uppercase leading-none truncate"
+                      style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A', fontSize: 16 }}>
                       {team.name}
-                    </span>
+                    </div>
                     {team.division && (
-                      <div className="text-xs mt-0.5" style={{ color: '#6F6B62' }}>{team.division}</div>
+                      <div className="text-xs mt-0.5 truncate" style={{ color: '#6F6B62' }}>{team.division}</div>
                     )}
-                  </div>
-                  <span className="text-xs font-semibold rounded-full px-2 py-0.5" style={{ background: '#F6F3EE', color: '#6F6B62' }}>
-                    {active.length} active
+                  </button>
+                  {/* Active badge */}
+                  <span className="text-xs font-semibold rounded-full px-2 py-0.5 shrink-0" style={{ background: '#F6F3EE', color: '#6F6B62' }}>
+                    {active.length}
                   </span>
-                  <span className="ml-auto text-xs" style={{ color: '#6F6B62' }}>{isOpen ? '▲' : '▼'}</span>
-                </button>
-                <button
-                  onClick={() => openEditTeam(team)}
-                  className="text-xs px-2 py-1 rounded"
-                  style={{ color: '#6F6B62' }}
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDeleteTeam(team)}
-                  className="text-xs px-2 py-1 rounded"
-                  style={{ color: '#E05A3A' }}
-                >
-                  Delete
-                </button>
+                  {/* Expand */}
+                  <button onClick={() => setExpanded(prev => ({ ...prev, [team.id]: !prev[team.id] }))}
+                    className="text-xs shrink-0" style={{ color: '#6F6B62' }}>
+                    {isOpen ? '▲' : '▼'}
+                  </button>
+                  {/* Edit / Delete */}
+                  <button onClick={() => openEditTeam(team)}
+                    className="text-xs px-2 py-1 rounded shrink-0" style={{ color: '#6F6B62' }}>
+                    Edit
+                  </button>
+                  <button onClick={() => handleDeleteTeam(team)}
+                    className="text-xs px-2 py-1 rounded shrink-0" style={{ color: '#E05A3A' }}>
+                    Del
+                  </button>
+                </div>
               </div>
 
               {/* Mini roster */}
