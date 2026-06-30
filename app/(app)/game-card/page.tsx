@@ -42,7 +42,7 @@ export default function GameCardPage() {
 
   // Field dimensions
   const [fieldW, setFieldW] = useState(340)
-  const fieldH = Math.round(fieldW * 1.25) // shorter ratio than before (was 1.41)
+  const fieldH = Math.round(fieldW * 1.0)
   const containerRef = useRef<HTMLDivElement>(null)
   const exportRef    = useRef<HTMLDivElement>(null)
 
