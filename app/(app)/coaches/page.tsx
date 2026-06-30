@@ -108,8 +108,8 @@ export default function CoachesPage() {
 
   function allCertsComplete(coachId: string) {
     const c = certs[coachId]
-    if (!c || c.length < CERT_TYPES.length) return false
-    return c.every(cert => cert.status === 'complete')
+    if (!c) return false
+    return CERT_TYPES.every(type => c.find(cert => cert.cert_type === type)?.status === 'complete')
   }
 
   if (loading) return <div className="px-5 pt-8 text-sm" style={{ color: '#6F6B62' }}>Loading…</div>
