@@ -124,19 +124,19 @@ export default function PlayerDetailPage() {
 
         {/* Tabs */}
         <div className="flex gap-0">
-          {(['info', 'documents', 'assessments', 'apparel'] as Tab[]).map(tab => (
+          {([['info','Info'], ['documents','Docs'], ['assessments','Assess'], ['apparel','Apparel']] as [Tab,string][]).map(([tab, label]) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className="flex-1 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors"
+              className="flex-1 py-2.5 font-semibold uppercase tracking-wider border-b-2 transition-colors"
               style={{
                 borderColor: activeTab === tab ? '#FE5A01' : 'transparent',
                 color:       activeTab === tab ? '#FE5A01' : '#6F6B62',
                 fontFamily:  "'Barlow Condensed', sans-serif",
-                fontSize: 13,
+                fontSize: 11,
               }}
             >
-              {tab}
+              {label}
             </button>
           ))}
         </div>
@@ -241,23 +241,30 @@ function InfoTab({ player, teams, onSave }: { player: Player; teams: Team[]; onS
         </div>
       </div>
 
-      <div>
-        <label className={lbl} style={{ color: '#6F6B62' }}>Positions</label>
-        <div className="flex flex-wrap gap-2 mt-1">
-          {POSITIONS.map(({ code }) => {
-            const selected = form.positions.includes(code)
-            return (
-              <button key={code} type="button" onClick={() => togglePosition(code)}
-                className="px-2 py-1 rounded text-xs font-bold uppercase"
-                style={{
-                  background: selected ? '#FE5A01' : '#F6F3EE',
-                  color:      selected ? '#fff'    : '#6F6B62',
-                  border:     `1px solid ${selected ? '#FE5A01' : '#E3DFD6'}`,
-                }}>
-                {code}
-              </button>
-            )
-          })}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className={lbl} style={{ color: '#6F6B62' }}>Primary Position</label>
+          <select className={field} style={{ borderColor: '#E3DFD6' }}
+            value={form.positions[0] ?? ''}
+            onChange={e => {
+              const val = e.target.value
+              setForm(f => ({ ...f, positions: val ? [val, f.positions[1] ?? ''].filter(Boolean) : (f.positions[1] ? [f.positions[1]] : []) }))
+            }}>
+            <option value="">— None —</option>
+            {POSITIONS.map(({ code, label }) => <option key={code} value={code}>{code} – {label}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className={lbl} style={{ color: '#6F6B62' }}>Secondary Position</label>
+          <select className={field} style={{ borderColor: '#E3DFD6' }}
+            value={form.positions[1] ?? ''}
+            onChange={e => {
+              const val = e.target.value
+              setForm(f => ({ ...f, positions: [f.positions[0] ?? '', val].filter(Boolean) }))
+            }}>
+            <option value="">— None —</option>
+            {POSITIONS.map(({ code, label }) => <option key={code} value={code}>{code} – {label}</option>)}
+          </select>
         </div>
       </div>
 

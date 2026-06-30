@@ -72,81 +72,78 @@ export default function PlayersPage() {
   const activeCount = players.filter(p => ACTIVE_STATUSES.includes(p.status)).length
 
   return (
-    <div className="px-5 pt-5 pb-4">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h2
-          className="text-3xl font-bold uppercase"
-          style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}
-        >
-          Players
-        </h2>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="text-sm font-semibold uppercase tracking-wider px-4 py-2 rounded-xl text-white"
-          style={{ background: '#FE5A01' }}
-        >
-          + Player
-        </button>
-      </div>
+    <div className="flex flex-col min-h-full">
+      {/* Sticky header */}
+      <div className="sticky top-0 z-10 px-5 pt-5 pb-3" style={{ background: '#F6F3EE' }}>
+        <div className="flex items-center justify-between mb-3">
+          <h2
+            className="text-3xl font-bold uppercase"
+            style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}
+          >
+            Players
+          </h2>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="text-sm font-semibold uppercase tracking-wider px-4 py-2 rounded-xl text-white"
+            style={{ background: '#FE5A01' }}
+          >
+            + Player
+          </button>
+        </div>
 
-      {/* Stats */}
-      <div
-        className="grid grid-cols-3 rounded-xl overflow-hidden mb-4"
-        style={{ background: '#E3DFD6', gap: 1 }}
-      >
-        {[
-          { num: players.length, lbl: 'Total' },
-          { num: activeCount,    lbl: 'Active' },
-          { num: filtered.length, lbl: 'Shown' },
-        ].map(({ num, lbl }) => (
-          <div key={lbl} className="text-center py-3" style={{ background: '#fff' }}>
-            <div
-              className="text-2xl font-bold leading-none"
-              style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}
-            >
-              {num}
+        {/* Stats */}
+        <div
+          className="grid grid-cols-3 rounded-xl overflow-hidden mb-3"
+          style={{ background: '#E3DFD6', gap: 1 }}
+        >
+          {[
+            { num: players.length,  lbl: 'Total' },
+            { num: activeCount,     lbl: 'Active' },
+            { num: filtered.length, lbl: 'Shown' },
+          ].map(({ num, lbl }) => (
+            <div key={lbl} className="text-center py-2" style={{ background: '#fff' }}>
+              <div className="text-xl font-bold leading-none" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}>{num}</div>
+              <div className="text-xs uppercase tracking-wider mt-0.5" style={{ color: '#6F6B62' }}>{lbl}</div>
             </div>
-            <div className="text-xs uppercase tracking-wider mt-1" style={{ color: '#6F6B62' }}>{lbl}</div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      {/* Search + filters */}
-      <div className="flex flex-col gap-2 mb-4">
-        <input
-          type="text"
-          placeholder="Search name or number…"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none"
-          style={{ borderColor: '#E3DFD6', background: '#fff' }}
-        />
-        <div className="flex gap-2">
-          <select
-            value={filterTeam}
-            onChange={e => setFilterTeam(e.target.value)}
-            className="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none"
+        {/* Search + filters */}
+        <div className="flex flex-col gap-2">
+          <input
+            type="text"
+            placeholder="Search name or number…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none"
             style={{ borderColor: '#E3DFD6', background: '#fff' }}
-          >
-            <option value="">All Teams</option>
-            {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-          </select>
-          <select
-            value={filterStatus}
-            onChange={e => setFilterStatus(e.target.value)}
-            className="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none"
-            style={{ borderColor: '#E3DFD6', background: '#fff' }}
-          >
-            <option value="active">Active</option>
-            <option value="all">All Statuses</option>
-            {ALL_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
+          />
+          <div className="flex gap-2">
+            <select
+              value={filterTeam}
+              onChange={e => setFilterTeam(e.target.value)}
+              className="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none"
+              style={{ borderColor: '#E3DFD6', background: '#fff' }}
+            >
+              <option value="">All Teams</option>
+              {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
+            <select
+              value={filterStatus}
+              onChange={e => setFilterStatus(e.target.value)}
+              className="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none"
+              style={{ borderColor: '#E3DFD6', background: '#fff' }}
+            >
+              <option value="active">Active</option>
+              <option value="all">All Statuses</option>
+              {ALL_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
         </div>
       </div>
 
       {/* Player cards */}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 px-5 pt-3 pb-4">
         {filtered.map(player => {
           return (
             <div

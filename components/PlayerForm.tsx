@@ -154,27 +154,30 @@ export default function PlayerForm({ teams, player, onSave, onCancel }: Props) {
       </div>
 
       {/* Positions */}
-      <div>
-        <label className={label} style={{ color: '#6F6B62' }}>Positions</label>
-        <div className="flex flex-wrap gap-2 mt-1">
-          {POSITIONS.map(({ code, label: lbl }) => {
-            const selected = form.positions.includes(code)
-            return (
-              <button
-                key={code}
-                type="button"
-                onClick={() => togglePosition(code)}
-                className="px-2 py-1 rounded text-xs font-bold uppercase transition-colors"
-                style={{
-                  background: selected ? '#FE5A01' : '#F6F3EE',
-                  color:      selected ? '#fff'    : '#6F6B62',
-                  border:     `1px solid ${selected ? '#FE5A01' : '#E3DFD6'}`,
-                }}
-              >
-                {code}
-              </button>
-            )
-          })}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className={label} style={{ color: '#6F6B62' }}>Primary Position</label>
+          <select className={field} style={{ borderColor: '#E3DFD6' }}
+            value={form.positions[0] ?? ''}
+            onChange={e => {
+              const val = e.target.value
+              setForm(f => ({ ...f, positions: val ? [val, f.positions[1] ?? ''].filter(Boolean) : (f.positions[1] ? [f.positions[1]] : []) }))
+            }}>
+            <option value="">— None —</option>
+            {POSITIONS.map(({ code, label: l }) => <option key={code} value={code}>{code} – {l}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className={label} style={{ color: '#6F6B62' }}>Secondary Position</label>
+          <select className={field} style={{ borderColor: '#E3DFD6' }}
+            value={form.positions[1] ?? ''}
+            onChange={e => {
+              const val = e.target.value
+              setForm(f => ({ ...f, positions: [f.positions[0] ?? '', val].filter(Boolean) }))
+            }}>
+            <option value="">— None —</option>
+            {POSITIONS.map(({ code, label: l }) => <option key={code} value={code}>{code} – {l}</option>)}
+          </select>
         </div>
       </div>
 

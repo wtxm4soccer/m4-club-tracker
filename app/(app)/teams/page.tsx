@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import type { Team, Player } from '@/lib/types'
 import { ACTIVE_STATUSES, STATUS_COLORS } from '@/lib/types'
 import { getTeams, getPlayers, upsertTeam, deleteTeam, uploadTeamMascot } from '@/lib/supabase/queries'
@@ -8,6 +9,7 @@ import Modal from '@/components/Modal'
 import PlayerForm from '@/components/PlayerForm'
 
 export default function TeamsPage() {
+  const router = useRouter()
   const [teams,   setTeams]   = useState<Team[]>([])
   const [players, setPlayers] = useState<Player[]>([])
   const [loading, setLoading] = useState(true)
@@ -132,27 +134,6 @@ export default function TeamsPage() {
         </button>
       </div>
 
-      {/* Summary stats */}
-      <div
-        className="grid grid-cols-3 rounded-xl overflow-hidden mb-5"
-        style={{ background: '#E3DFD6', gap: 1 }}
-      >
-        {[
-          { num: teams.length,  lbl: 'Teams' },
-          { num: totalActive,   lbl: 'Active' },
-          { num: players.length, lbl: 'Total' },
-        ].map(({ num, lbl }) => (
-          <div key={lbl} className="text-center py-3" style={{ background: '#fff' }}>
-            <div
-              className="text-2xl font-bold leading-none"
-              style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}
-            >
-              {num}
-            </div>
-            <div className="text-xs uppercase tracking-wider mt-1" style={{ color: '#6F6B62' }}>{lbl}</div>
-          </div>
-        ))}
-      </div>
 
       {/* Team cards */}
       <div className="flex flex-col gap-3">
@@ -223,10 +204,11 @@ export default function TeamsPage() {
                       {active
                         .sort((a, b) => Number(a.number ?? 99) - Number(b.number ?? 99))
                         .map(p => (
-                          <div
+                          <button
                             key={p.id}
-                            className="grid items-center py-1.5"
+                            className="grid items-center py-1.5 w-full text-left"
                             style={{ gridTemplateColumns: '10px 34px 1fr auto', gap: 8 }}
+                            onClick={() => router.push(`/players/${p.id}`)}
                           >
                             <div
                               className="w-2 h-2 rounded-full"
@@ -244,7 +226,7 @@ export default function TeamsPage() {
                             <span className="text-xs uppercase" style={{ color: '#6F6B62' }}>
                               {p.positions.slice(0, 2).join(', ')}
                             </span>
-                          </div>
+                          </button>
                         ))}
                     </div>
                   )}
