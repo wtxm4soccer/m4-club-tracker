@@ -40,15 +40,21 @@ export default function GameCardPage() {
   const [expHomeAway,  setExpHomeAway]  = useState<'Home' | 'Away'>('Home')
   const [expDate,      setExpDate]      = useState(date)
 
-  // Field dimensions
+  // Field dimensions — height computed from remaining viewport space
   const [fieldW, setFieldW] = useState(340)
-  const fieldH = Math.round(fieldW * 1.0)
+  const [fieldH, setFieldH] = useState(340)
   const containerRef = useRef<HTMLDivElement>(null)
   const exportRef    = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     function measure() {
-      if (containerRef.current) setFieldW(containerRef.current.offsetWidth)
+      if (!containerRef.current) return
+      const w = containerRef.current.offsetWidth
+      setFieldW(w)
+      // Subtract fixed chrome: app header ~80px, controls ~94px,
+      // bench label+chips ~78px, actions ~68px, padding ~24px
+      const available = window.innerHeight - 80 - 94 - 78 - 68 - 24
+      setFieldH(Math.round(Math.min(available, w * 1.35)))
     }
     measure()
     window.addEventListener('resize', measure)
