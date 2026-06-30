@@ -205,9 +205,14 @@ export default function GameCardPage() {
 
       {/* ── Bench — single horizontal scrollable row above field ── */}
       <div className="mt-2 px-4">
-        <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#6F6B62' }}>
-          Bench ({benchIds.length})
-        </p>
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs font-bold uppercase tracking-wider" style={{ color: '#6F6B62' }}>
+            Bench ({benchIds.length})
+          </p>
+          <p className="text-xs" style={{ color: '#B9B4A8' }}>
+            {selectedBenchId ? 'Tap a field spot to place' : 'Tap a player, then a spot'}
+          </p>
+        </div>
         <div className="overflow-x-auto pb-1">
           <div className="flex gap-2" style={{ minWidth: 'max-content' }}>
             {benchIds.length === 0 && (
@@ -260,11 +265,6 @@ export default function GameCardPage() {
           />
         </div>
       </div>
-
-      {/* Hint */}
-      <p className="text-xs text-center mt-1 px-4" style={{ color: '#B9B4A8' }}>
-        {selectedBenchId ? 'Tap a spot on the field to place player' : 'Tap a bench player, then tap a field spot'}
-      </p>
 
       {/* Excluded */}
       {excludedIds.length > 0 && (

@@ -85,8 +85,9 @@ export function generateSlots(lines: number[]): Slot[] {
                                        midCodes(count, lineIdx, totalLines)
 
     for (let i = 0; i < count; i++) {
-      const x = count === 1 ? 50 : 15 + (70 / (count - 1)) * i
-      // Wine-rack: stagger any 2-player line (defenders, mids, forwards) diagonally
+      // Pairs stay central (30/70), wider lines spread to edges (15→85)
+      const x = count === 1 ? 50 : count === 2 ? 30 + 40 * i : 15 + (70 / (count - 1)) * i
+      // Wine-rack: stagger any 2-player line diagonally
       const yOffset = count === 2 ? (i === 0 ? -4 : 4) : 0
       slots.push({
         id:        `slot-${idCounter++}`,
