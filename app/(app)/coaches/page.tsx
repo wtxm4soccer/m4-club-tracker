@@ -115,9 +115,9 @@ export default function CoachesPage() {
   if (loading) return <div className="px-5 pt-8 text-sm" style={{ color: '#6F6B62' }}>Loading…</div>
 
   return (
-    <div className="flex flex-col min-h-full">
-      {/* Sticky header */}
-      <div className="sticky top-0 z-10 px-5 pt-5 pb-3" style={{ background: '#F6F3EE' }}>
+    <div className="flex flex-col" style={{ height: 'calc(100dvh - 80px)' }}>
+      {/* Fixed header */}
+      <div className="shrink-0 px-5 pt-5 pb-3" style={{ background: '#F6F3EE' }}>
         <div className="flex items-center justify-between mb-3">
           <h2
             className="text-3xl font-bold uppercase"
@@ -157,8 +157,8 @@ export default function CoachesPage() {
         </div>
       </div>
 
-      {/* Scrollable coach cards */}
-      <div className="flex flex-col gap-3 px-5 pt-3 pb-4">
+      {/* Scrollable coach list */}
+      <div className="flex-1 overflow-y-auto flex flex-col gap-3 px-5 pt-3 pb-4">
         {coaches.map(coach => {
           const isOpen = expanded[coach.id]
           const coachCerts = certs[coach.id] ?? []

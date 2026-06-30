@@ -78,9 +78,9 @@ export default function PlayersPage() {
   const activeCount = players.filter(p => ACTIVE_STATUSES.includes(p.status)).length
 
   return (
-    <div className="flex flex-col min-h-full">
-      {/* Sticky header */}
-      <div className="sticky top-0 z-10 px-5 pt-5 pb-3" style={{ background: '#F6F3EE' }}>
+    <div className="flex flex-col" style={{ height: 'calc(100dvh - 80px)' }}>
+      {/* Fixed header */}
+      <div className="shrink-0 px-5 pt-5 pb-3" style={{ background: '#F6F3EE' }}>
         <div className="flex items-center justify-between mb-3">
           <h2
             className="text-3xl font-bold uppercase"
@@ -148,8 +148,8 @@ export default function PlayersPage() {
         </div>
       </div>
 
-      {/* Player cards */}
-      <div className="flex flex-col gap-3 px-5 pt-3 pb-4">
+      {/* Scrollable player list */}
+      <div className="flex-1 overflow-y-auto flex flex-col gap-3 px-5 pt-3 pb-4">
         {filtered.map(player => {
           return (
             <div
