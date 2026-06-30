@@ -8,11 +8,10 @@ export type Certification = {
   date_completed: string | null
 }
 
+// US Club minimums only — Grassroots License and CDC Protocol are optional
 export const CERT_TYPES: Certification['cert_type'][] = [
   'SafeSport',
   'Background Check',
-  'US Soccer Grassroots License',
-  'CDC Concussion Training',
 ]
 
 export async function getCertifications(coachId: string): Promise<Certification[]> {
