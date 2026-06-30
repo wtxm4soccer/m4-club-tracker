@@ -205,11 +205,11 @@ export default function GameCardPage() {
 
       {/* ── Bench — single horizontal scrollable row above field ── */}
       <div className="mt-2 px-4">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs font-bold uppercase tracking-wider" style={{ color: '#6F6B62' }}>
+        <div className="flex items-center mb-2">
+          <p className="text-xs font-bold uppercase tracking-wider shrink-0" style={{ color: '#6F6B62' }}>
             Bench ({benchIds.length})
           </p>
-          <p className="text-xs" style={{ color: '#B9B4A8' }}>
+          <p className="flex-1 text-xs text-center" style={{ color: '#B9B4A8' }}>
             {selectedBenchId ? 'Tap a field spot to place' : 'Tap a player, then a spot'}
           </p>
         </div>
