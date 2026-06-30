@@ -203,27 +203,8 @@ export default function GameCardPage() {
         </div>
       </div>
 
-      {/* ── Field ── */}
-      <div ref={containerRef} className="px-4 mt-2">
-        <div ref={exportRef}>
-          <SoccerField
-            slots={slots}
-            players={playerMap}
-            selectedSlotId={selectedSlotId}
-            onSlotTap={handleSlotTap}
-            fieldWidth={fieldW}
-            fieldHeight={fieldH}
-          />
-        </div>
-      </div>
-
-      {/* Hint */}
-      <p className="text-xs text-center mt-1 px-4" style={{ color: '#B9B4A8' }}>
-        {selectedBenchId ? 'Tap a spot on the field to place player' : 'Tap a bench player, then tap a field spot'}
-      </p>
-
-      {/* ── Bench — single horizontal scrollable row ── */}
-      <div className="mt-3 px-4">
+      {/* ── Bench — single horizontal scrollable row above field ── */}
+      <div className="mt-2 px-4">
         <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#6F6B62' }}>
           Bench ({benchIds.length})
         </p>
@@ -265,6 +246,25 @@ export default function GameCardPage() {
           </div>
         </div>
       </div>
+
+      {/* ── Field ── */}
+      <div ref={containerRef} className="px-4 mt-2">
+        <div ref={exportRef}>
+          <SoccerField
+            slots={slots}
+            players={playerMap}
+            selectedSlotId={selectedSlotId}
+            onSlotTap={handleSlotTap}
+            fieldWidth={fieldW}
+            fieldHeight={fieldH}
+          />
+        </div>
+      </div>
+
+      {/* Hint */}
+      <p className="text-xs text-center mt-1 px-4" style={{ color: '#B9B4A8' }}>
+        {selectedBenchId ? 'Tap a spot on the field to place player' : 'Tap a bench player, then tap a field spot'}
+      </p>
 
       {/* Excluded */}
       {excludedIds.length > 0 && (
