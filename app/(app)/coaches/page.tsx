@@ -115,48 +115,50 @@ export default function CoachesPage() {
   if (loading) return <div className="px-5 pt-8 text-sm" style={{ color: '#6F6B62' }}>Loading…</div>
 
   return (
-    <div className="px-5 pt-5 pb-4">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h2
-          className="text-3xl font-bold uppercase"
-          style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}
-        >
-          Coaches
-        </h2>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="text-sm font-semibold uppercase tracking-wider px-4 py-2 rounded-xl text-white"
-          style={{ background: '#2C3A52' }}
-        >
-          + Coach
-        </button>
-      </div>
+    <div className="flex flex-col min-h-full">
+      {/* Sticky header */}
+      <div className="sticky top-0 z-10 px-5 pt-5 pb-3" style={{ background: '#F6F3EE' }}>
+        <div className="flex items-center justify-between mb-3">
+          <h2
+            className="text-3xl font-bold uppercase"
+            style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}
+          >
+            Coaches
+          </h2>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="text-sm font-semibold uppercase tracking-wider px-4 py-2 rounded-xl text-white"
+            style={{ background: '#2C3A52' }}
+          >
+            + Coach
+          </button>
+        </div>
 
-      {/* Stats */}
-      <div
-        className="grid grid-cols-3 rounded-xl overflow-hidden mb-5"
-        style={{ background: '#E3DFD6', gap: 1 }}
-      >
-        {[
-          { num: coaches.length, lbl: 'Staff' },
-          { num: coaches.filter(c => c.role === 'Head Coach').length,    lbl: 'Head' },
-          { num: coaches.filter(c => c.role === 'Assistant Coach').length, lbl: 'Asst' },
-        ].map(({ num, lbl }) => (
-          <div key={lbl} className="text-center py-3" style={{ background: '#fff' }}>
-            <div
-              className="text-2xl font-bold leading-none"
-              style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}
-            >
-              {num}
+        {/* Stats */}
+        <div
+          className="grid grid-cols-3 rounded-xl overflow-hidden"
+          style={{ background: '#E3DFD6', gap: 1 }}
+        >
+          {[
+            { num: coaches.length, lbl: 'Staff' },
+            { num: coaches.filter(c => c.role === 'Head Coach').length,    lbl: 'Head' },
+            { num: coaches.filter(c => c.role === 'Assistant Coach').length, lbl: 'Asst' },
+          ].map(({ num, lbl }) => (
+            <div key={lbl} className="text-center py-3" style={{ background: '#fff' }}>
+              <div
+                className="text-2xl font-bold leading-none"
+                style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}
+              >
+                {num}
+              </div>
+              <div className="text-xs uppercase tracking-wider mt-1" style={{ color: '#6F6B62' }}>{lbl}</div>
             </div>
-            <div className="text-xs uppercase tracking-wider mt-1" style={{ color: '#6F6B62' }}>{lbl}</div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
-      {/* Coach cards */}
-      <div className="flex flex-col gap-3">
+      {/* Scrollable coach cards */}
+      <div className="flex flex-col gap-3 px-5 pt-3 pb-4">
         {coaches.map(coach => {
           const isOpen = expanded[coach.id]
           const coachCerts = certs[coach.id] ?? []
