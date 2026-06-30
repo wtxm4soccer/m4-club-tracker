@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import type { Player, Team, Document, Assessment, Apparel } from '@/lib/types'
 import { STATUS_COLORS, POSITIONS } from '@/lib/types'
-import { getPlayer, getTeams, upsertPlayer } from '@/lib/supabase/queries'
+import { getPlayer, getTeams, upsertPlayer, deletePlayer } from '@/lib/supabase/queries'
 import {
   getPlayerDocuments, upsertDocument,
   getPlayerAssessments, upsertAssessment, deleteAssessment,
@@ -144,7 +144,7 @@ export default function PlayerDetailPage() {
 
       {/* Tab content */}
       <div className="flex-1 px-5 py-4">
-        {activeTab === 'info'        && <InfoTab        player={player} teams={teams} onSave={setPlayer} />}
+        {activeTab === 'info'        && <InfoTab        player={player} teams={teams} onSave={setPlayer} onDelete={() => router.replace('/players')} />}
         {activeTab === 'documents'   && <DocumentsTab   player={player} team={teams.find(t => t.id === player.team_id) ?? null} documents={documents} setDocuments={setDocuments} />}
         {activeTab === 'assessments' && <AssessmentsTab playerId={id} assessments={assessments} setAssessments={setAssessments} showForm={showAssessmentForm} setShowForm={setShowAssessmentForm} />}
         {activeTab === 'apparel'     && <ApparelTab     playerId={id} apparel={apparel} setApparel={setApparel} />}
@@ -154,7 +154,7 @@ export default function PlayerDetailPage() {
 }
 
 // ─── Info Tab ────────────────────────────────────────────────────────────────
-function InfoTab({ player, teams, onSave }: { player: Player; teams: Team[]; onSave: (p: Player) => void }) {
+function InfoTab({ player, teams, onSave, onDelete }: { player: Player; teams: Team[]; onSave: (p: Player) => void; onDelete: () => void }) {
   const [form, setForm]     = useState({ ...player, team_id: player.team_id ?? '' })
   const [saving, setSaving] = useState(false)
   const [saved,  setSaved]  = useState(false)
@@ -313,6 +313,18 @@ function InfoTab({ player, teams, onSave }: { player: Player; teams: Team[]; onS
         className="w-full py-3 rounded-xl text-sm font-semibold uppercase tracking-wider text-white disabled:opacity-50"
         style={{ background: saved ? '#2F8F54' : '#FE5A01' }}>
         {saved ? '✓ Saved' : saving ? 'Saving…' : 'Save Changes'}
+      </button>
+
+      <button
+        onClick={async () => {
+          if (!confirm(`Delete ${player.first_name} ${player.last_name}? This cannot be undone.`)) return
+          await deletePlayer(player.id)
+          onDelete()
+        }}
+        className="w-full py-3 rounded-xl text-sm font-semibold uppercase tracking-wider border"
+        style={{ borderColor: '#E05A3A', color: '#E05A3A' }}
+      >
+        Delete Player
       </button>
     </div>
   )
