@@ -61,6 +61,12 @@ export default function GameCardPage() {
     return () => window.removeEventListener('resize', measure)
   }, [])
 
+  // Prevent body scroll on this page — everything fits on one screen
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = '' }
+  }, [])
+
   useEffect(() => {
     Promise.all([getTeams(), getPlayers()]).then(([t, p]) => {
       setTeams(t); setPlayers(p)
@@ -73,13 +79,18 @@ export default function GameCardPage() {
     if (!teamId) return
     getLatestLineup(teamId).then(lineup => {
       if (lineup) {
-        setFormat(lineup.format as Format)
-        setFormation(lineup.formation_name)
-        setDate(lineup.date)
-        setSlots(lineup.slots)
-        setSubs(lineup.subs)
-        setExcluded(lineup.excluded)
-        setSavedId(lineup.id)
+        const fmt  = lineup.format as Format
+        const form = lineup.formation_name
+        setFormat(fmt); setFormation(form)
+        setDate(lineup.date); setSubs(lineup.subs)
+        setExcluded(lineup.excluded); setSavedId(lineup.id)
+        // Regenerate slot positions from current formation so stale x/y
+        // from the DB never override the latest layout logic
+        const freshSlots = generateSlots(
+          FORMATION_LIBRARY[fmt].find(f => f.name === form)?.lines ?? FORMATION_LIBRARY[fmt][0].lines
+        )
+        // Re-apply saved player assignments by slot index
+        setSlots(freshSlots.map((s, i) => ({ ...s, player_id: lineup.slots[i]?.player_id ?? null })))
       } else {
         resetLineup('11v11', '4-3-3', teamId)
       }
