@@ -41,9 +41,12 @@ export default function CoachesPage() {
   const [certCoachId,  setCertCoachId]  = useState<string | null>(null)
 
   useEffect(() => {
-    Promise.all([getTeams(), getCoaches()]).then(([t, c]) => {
+    Promise.all([getTeams(), getCoaches()]).then(async ([t, c]) => {
       setTeams(t)
       setCoaches(c)
+      // Load all certs upfront so badges show without opening each card
+      const certEntries = await Promise.all(c.map(coach => getCertifications(coach.id).then(data => [coach.id, data] as const)))
+      setCerts(Object.fromEntries(certEntries))
       setLoading(false)
     })
   }, [])
@@ -185,17 +188,12 @@ export default function CoachesPage() {
                 </div>
 
                 {/* Cert completion indicator */}
-                {allCertsComplete(coach.id) ? (
-                  <span className="text-xs font-bold px-2 py-0.5 rounded-full"
-                    style={{ background: '#2F8F5422', color: '#2F8F54' }}>
-                    ✓ Certified
-                  </span>
-                ) : certsLoaded ? (
-                  <span className="text-xs font-bold px-2 py-0.5 rounded-full"
-                    style={{ background: '#D98E0422', color: '#D98E04' }}>
-                    Pending
-                  </span>
-                ) : null}
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full"
+                  style={allCertsComplete(coach.id)
+                    ? { background: '#2F8F5422', color: '#2F8F54' }
+                    : { background: '#D98E0422', color: '#D98E04' }}>
+                  {allCertsComplete(coach.id) ? '✓ Certified' : 'Pending'}
+                </span>
 
                 <span className="text-xs shrink-0" style={{ color: '#6F6B62' }}>
                   {isOpen ? '▲' : '▼'}
