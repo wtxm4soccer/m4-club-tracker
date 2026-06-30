@@ -7,6 +7,7 @@ import { getTeams, getPlayers } from '@/lib/supabase/queries'
 import { getLatestLineup, saveLineup } from '@/lib/supabase/lineup-queries'
 import { FORMATION_LIBRARY, generateSlots, type Slot } from '@/lib/formations'
 import SoccerField from '@/components/SoccerField'
+import Modal from '@/components/Modal'
 
 const FORMATS = ['5v5', '7v7', '9v9', '11v11'] as const
 type Format = typeof FORMATS[number]
@@ -19,7 +20,6 @@ export default function GameCardPage() {
   const [teamId,    setTeamId]    = useState('')
   const [format,    setFormat]    = useState<Format>('11v11')
   const [formation, setFormation] = useState('4-3-3')
-  const [opponent,  setOpponent]  = useState('')
   const [date,      setDate]      = useState(new Date().toISOString().slice(0, 10))
   const [slots,     setSlots]     = useState<Slot[]>([])
   const [subs,      setSubs]      = useState<string[]>([])
@@ -28,22 +28,27 @@ export default function GameCardPage() {
 
   const [selectedBenchId, setSelectedBenchId] = useState<string | null>(null)
   const [selectedSlotId,  setSelectedSlotId]  = useState<string | null>(null)
-  const [saving,   setSaving]   = useState(false)
-  const [saveMsg,  setSaveMsg]  = useState('')
-  const [exporting, setExporting] = useState(false)
+  const [saving,    setSaving]    = useState(false)
+  const [saveMsg,   setSaveMsg]   = useState('')
 
-  // Field dimensions — full width, proportional height
+  // Export modal state
+  const [showExport,   setShowExport]   = useState(false)
+  const [exporting,    setExporting]    = useState(false)
+  const [expOpponent,  setExpOpponent]  = useState('')
+  const [expField,     setExpField]     = useState('')
+  const [expKitColor,  setExpKitColor]  = useState('')
+  const [expHomeAway,  setExpHomeAway]  = useState<'Home' | 'Away'>('Home')
+  const [expDate,      setExpDate]      = useState(date)
+
+  // Field dimensions
   const [fieldW, setFieldW] = useState(340)
-  const fieldRatio = 480 / 340
-  const fieldH = Math.round(fieldW * fieldRatio)
+  const fieldH = Math.round(fieldW * 1.25) // shorter ratio than before (was 1.41)
   const containerRef = useRef<HTMLDivElement>(null)
   const exportRef    = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     function measure() {
-      if (containerRef.current) {
-        setFieldW(containerRef.current.offsetWidth)
-      }
+      if (containerRef.current) setFieldW(containerRef.current.offsetWidth)
     }
     measure()
     window.addEventListener('resize', measure)
@@ -64,7 +69,6 @@ export default function GameCardPage() {
       if (lineup) {
         setFormat(lineup.format as Format)
         setFormation(lineup.formation_name)
-        setOpponent(lineup.opponent ?? '')
         setDate(lineup.date)
         setSlots(lineup.slots)
         setSubs(lineup.subs)
@@ -77,11 +81,9 @@ export default function GameCardPage() {
   }, [teamId])
 
   function resetLineup(fmt: Format, form: string, tid: string) {
-    const newSlots = generateSlots(
-      FORMATION_LIBRARY[fmt].find(f => f.name === form)?.lines ?? FORMATION_LIBRARY[fmt][0].lines
-    )
+    const lines = FORMATION_LIBRARY[fmt].find(f => f.name === form)?.lines ?? FORMATION_LIBRARY[fmt][0].lines
     const active = players.filter(p => p.team_id === tid && ACTIVE_STATUSES.includes(p.status)).map(p => p.id)
-    setSlots(newSlots); setSubs(active); setExcluded([])
+    setSlots(generateSlots(lines)); setSubs(active); setExcluded([])
     setSelectedBenchId(null); setSelectedSlotId(null)
   }
 
@@ -105,7 +107,7 @@ export default function GameCardPage() {
   const excludedIds = excluded
 
   function handleBenchTap(id: string) {
-    if (selectedBenchId === id) { setSelectedBenchId(null) }
+    if (selectedBenchId === id) setSelectedBenchId(null)
     else { setSelectedBenchId(id); setSelectedSlotId(null) }
   }
 
@@ -136,9 +138,15 @@ export default function GameCardPage() {
   async function handleSave() {
     if (!teamId) return
     setSaving(true)
-    const lineup = await saveLineup({ ...(savedId ? { id: savedId } : {}), team_id: teamId, date, format, formation_name: formation, opponent: opponent || null, slots, subs, excluded })
-    setSavedId(lineup.id); setSaving(false); setSaveMsg('Saved!')
-    setTimeout(() => setSaveMsg(''), 2000)
+    const lineup = await saveLineup({
+      ...(savedId ? { id: savedId } : {}),
+      team_id: teamId, date, format,
+      formation_name: formation,
+      opponent: expOpponent || null,
+      slots, subs, excluded,
+    })
+    setSavedId(lineup.id); setSaving(false)
+    setSaveMsg('Saved!'); setTimeout(() => setSaveMsg(''), 2000)
   }
 
   async function handleExport() {
@@ -157,51 +165,45 @@ export default function GameCardPage() {
           const a = document.createElement('a'); a.href = url; a.download = 'm4-lineup.png'; a.click()
           URL.revokeObjectURL(url)
         }
-        setExporting(false)
+        setExporting(false); setShowExport(false)
       }, 'image/png')
     } catch { setExporting(false) }
   }
 
   if (loading) return <div className="px-5 pt-8 text-sm" style={{ color: '#6F6B62' }}>Loading…</div>
 
+  const sel = 'border rounded-lg px-3 py-2 text-sm focus:outline-none'
+  const selStyle = { borderColor: '#E3DFD6', background: '#fff' }
+
   return (
     <div className="flex flex-col pb-4">
-      {/* Controls */}
-      <div className="px-4 pt-4 flex flex-col gap-2">
+
+      {/* ── Controls ── */}
+      <div className="px-4 pt-3 flex flex-col gap-2">
+        {/* Team + Date */}
         <div className="grid grid-cols-2 gap-2">
           <select value={teamId} onChange={e => { setTeamId(e.target.value); setSavedId(undefined) }}
-            className="border rounded-lg px-3 py-2 text-sm focus:outline-none"
-            style={{ borderColor: '#E3DFD6', background: '#fff' }}>
+            className={sel} style={selStyle}>
             {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
           <input type="date" value={date} onChange={e => setDate(e.target.value)}
-            className="border rounded-lg px-3 py-2 text-sm focus:outline-none"
-            style={{ borderColor: '#E3DFD6', background: '#fff' }} />
+            className={sel} style={selStyle} />
         </div>
-        <input placeholder="Opponent (optional)" value={opponent} onChange={e => setOpponent(e.target.value)}
-          className="border rounded-lg px-3 py-2 text-sm focus:outline-none w-full"
-          style={{ borderColor: '#E3DFD6', background: '#fff' }} />
-        <div className="flex gap-2">
-          {FORMATS.map(fmt => (
-            <button key={fmt} onClick={() => handleFormatChange(fmt)}
-              className="flex-1 py-1.5 rounded-lg text-xs font-bold uppercase"
-              style={{ background: format === fmt ? '#0A0A0A' : '#F6F3EE', color: format === fmt ? '#fff' : '#6F6B62' }}>
-              {fmt}
-            </button>
-          ))}
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          {FORMATION_LIBRARY[format].map(f => (
-            <button key={f.name} onClick={() => handleFormationChange(f.name)}
-              className="px-3 py-1 rounded-lg text-xs font-bold uppercase"
-              style={{ background: formation === f.name ? '#FE5A01' : '#F6F3EE', color: formation === f.name ? '#fff' : '#6F6B62' }}>
-              {f.name}
-            </button>
-          ))}
+
+        {/* Format + Formation dropdowns */}
+        <div className="grid grid-cols-2 gap-2">
+          <select value={format} onChange={e => handleFormatChange(e.target.value as Format)}
+            className={sel} style={selStyle}>
+            {FORMATS.map(f => <option key={f} value={f}>{f}</option>)}
+          </select>
+          <select value={formation} onChange={e => handleFormationChange(e.target.value)}
+            className={sel} style={selStyle}>
+            {FORMATION_LIBRARY[format].map(f => <option key={f.name} value={f.name}>{f.name}</option>)}
+          </select>
         </div>
       </div>
 
-      {/* Field — full width */}
+      {/* ── Field ── */}
       <div ref={containerRef} className="px-4 mt-2">
         <div ref={exportRef}>
           <SoccerField
@@ -220,60 +222,64 @@ export default function GameCardPage() {
         {selectedBenchId ? 'Tap a spot on the field to place player' : 'Tap a bench player, then tap a field spot'}
       </p>
 
-      {/* Bench — horizontal scrollable chips */}
-      <div className="px-4 mt-3">
+      {/* ── Bench — single horizontal scrollable row ── */}
+      <div className="mt-3 px-4">
         <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#6F6B62' }}>
           Bench ({benchIds.length})
         </p>
-        {benchIds.length === 0 && (
-          <p className="text-xs" style={{ color: '#B9B4A8' }}>All players placed or excluded.</p>
-        )}
-        <div className="flex flex-wrap gap-2">
-          {benchIds.map(id => {
-            const p = playerMap[id]
-            if (!p) return null
-            const isSelected = selectedBenchId === id
-            return (
-              <div key={id} className="flex flex-col gap-1">
-                <button onClick={() => handleBenchTap(id)}
-                  className="px-3 py-2 rounded-xl text-xs font-semibold"
-                  style={{
-                    background: isSelected ? '#FE5A01' : '#fff',
-                    color:      isSelected ? '#fff'    : '#0A0A0A',
-                    border:     `1px solid ${isSelected ? '#FE5A01' : '#E3DFD6'}`,
-                    boxShadow:  '0 1px 3px rgba(0,0,0,0.06)',
-                  }}>
-                  <span style={{ color: isSelected ? 'rgba(255,255,255,0.8)' : '#FE5A01', fontFamily: "'Barlow Condensed'" }}>
-                    #{p.number ?? '—'}
-                  </span>
-                  {' '}{p.first_name[0]}. {p.last_name}
-                  {p.positions[0] && <span className="ml-1" style={{ color: isSelected ? 'rgba(255,255,255,0.6)' : '#6F6B62' }}>· {p.positions[0]}</span>}
-                </button>
-                {isSelected && (
-                  <button onClick={() => handleExclude(id)}
-                    className="px-2 py-0.5 rounded text-xs text-center"
-                    style={{ color: '#E05A3A', background: '#FEF0EC' }}>
-                    Exclude
+        <div className="overflow-x-auto pb-1">
+          <div className="flex gap-2" style={{ minWidth: 'max-content' }}>
+            {benchIds.length === 0 && (
+              <span className="text-xs" style={{ color: '#B9B4A8' }}>All players placed or excluded.</span>
+            )}
+            {benchIds.map(id => {
+              const p = playerMap[id]
+              if (!p) return null
+              const isSel = selectedBenchId === id
+              return (
+                <div key={id} className="flex flex-col gap-1">
+                  <button onClick={() => handleBenchTap(id)}
+                    className="px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap"
+                    style={{
+                      background: isSel ? '#FE5A01' : '#fff',
+                      color:      isSel ? '#fff'    : '#0A0A0A',
+                      border:     `1px solid ${isSel ? '#FE5A01' : '#E3DFD6'}`,
+                      boxShadow:  '0 1px 3px rgba(0,0,0,0.06)',
+                    }}>
+                    <span style={{ color: isSel ? 'rgba(255,255,255,0.8)' : '#FE5A01', fontFamily: "'Barlow Condensed'" }}>
+                      #{p.number ?? '—'}
+                    </span>
+                    {' '}{p.first_name[0]}. {p.last_name}
+                    {p.positions[0] && <span className="ml-1" style={{ color: isSel ? 'rgba(255,255,255,0.6)' : '#6F6B62' }}>· {p.positions[0]}</span>}
                   </button>
-                )}
-              </div>
-            )
-          })}
+                  {isSel && (
+                    <button onClick={() => handleExclude(id)}
+                      className="px-2 py-0.5 rounded text-xs text-center"
+                      style={{ color: '#E05A3A', background: '#FEF0EC' }}>
+                      Exclude
+                    </button>
+                  )}
+                </div>
+              )
+            })}
+          </div>
         </div>
+      </div>
 
-        {/* Excluded */}
-        {excludedIds.length > 0 && (
-          <div className="mt-3">
-            <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#B9B4A8' }}>
-              Out ({excludedIds.length})
-            </p>
-            <div className="flex flex-wrap gap-2">
+      {/* Excluded */}
+      {excludedIds.length > 0 && (
+        <div className="mt-2 px-4">
+          <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: '#B9B4A8' }}>
+            Out ({excludedIds.length})
+          </p>
+          <div className="overflow-x-auto pb-1">
+            <div className="flex gap-2" style={{ minWidth: 'max-content' }}>
               {excludedIds.map(id => {
                 const p = playerMap[id]
                 if (!p) return null
                 return (
                   <button key={id} onClick={() => handleReinclude(id)}
-                    className="px-3 py-1.5 rounded-xl text-xs"
+                    className="px-3 py-1.5 rounded-xl text-xs whitespace-nowrap"
                     style={{ background: '#F6F3EE', color: '#B9B4A8', border: '1px solid #E3DFD6' }}>
                     {p.first_name[0]}. {p.last_name} ↩
                   </button>
@@ -281,22 +287,77 @@ export default function GameCardPage() {
               })}
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* Actions */}
+      {/* ── Actions ── */}
       <div className="flex gap-2 px-4 mt-4">
         <button onClick={handleSave} disabled={saving || !teamId}
           className="flex-1 py-3 rounded-xl text-sm font-semibold uppercase tracking-wider text-white disabled:opacity-50"
           style={{ background: saveMsg ? '#2F8F54' : '#0A0A0A' }}>
           {saveMsg || (saving ? 'Saving…' : 'Save Lineup')}
         </button>
-        <button onClick={handleExport} disabled={exporting}
-          className="flex-1 py-3 rounded-xl text-sm font-semibold uppercase tracking-wider disabled:opacity-50"
+        <button onClick={() => { setExpDate(date); setShowExport(true) }}
+          className="flex-1 py-3 rounded-xl text-sm font-semibold uppercase tracking-wider"
           style={{ background: '#FE5A01', color: '#fff' }}>
-          {exporting ? 'Exporting…' : 'Share Card'}
+          Share Card
         </button>
       </div>
+
+      {/* ── Export Modal ── */}
+      {showExport && (
+        <Modal title="Share Game Card" onClose={() => setShowExport(false)}>
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-wider mb-1 block" style={{ color: '#6F6B62' }}>Date</label>
+                <input type="date" className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none"
+                  style={{ borderColor: '#E3DFD6' }} value={expDate} onChange={e => setExpDate(e.target.value)} />
+              </div>
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-wider mb-1 block" style={{ color: '#6F6B62' }}>Home / Away</label>
+                <select className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none"
+                  style={{ borderColor: '#E3DFD6' }} value={expHomeAway}
+                  onChange={e => setExpHomeAway(e.target.value as 'Home' | 'Away')}>
+                  <option>Home</option>
+                  <option>Away</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wider mb-1 block" style={{ color: '#6F6B62' }}>Opponent</label>
+              <input className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none"
+                style={{ borderColor: '#E3DFD6' }} placeholder="e.g. FC Dallas"
+                value={expOpponent} onChange={e => setExpOpponent(e.target.value)} />
+            </div>
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wider mb-1 block" style={{ color: '#6F6B62' }}>Field / Location</label>
+              <input className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none"
+                style={{ borderColor: '#E3DFD6' }} placeholder="e.g. Scharbauer Sports Complex"
+                value={expField} onChange={e => setExpField(e.target.value)} />
+            </div>
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wider mb-1 block" style={{ color: '#6F6B62' }}>Kit Color</label>
+              <input className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none"
+                style={{ borderColor: '#E3DFD6' }} placeholder="e.g. Orange"
+                value={expKitColor} onChange={e => setExpKitColor(e.target.value)} />
+            </div>
+
+            <div className="flex gap-3">
+              <button onClick={() => setShowExport(false)}
+                className="flex-1 py-3 rounded-xl text-sm font-semibold uppercase border"
+                style={{ borderColor: '#E3DFD6', color: '#6F6B62' }}>
+                Cancel
+              </button>
+              <button onClick={handleExport} disabled={exporting}
+                className="flex-1 py-3 rounded-xl text-sm font-semibold uppercase text-white disabled:opacity-50"
+                style={{ background: '#FE5A01' }}>
+                {exporting ? 'Exporting…' : 'Export PNG'}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   )
 }
