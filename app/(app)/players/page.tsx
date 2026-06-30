@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Player, Team, PlayerStatus } from '@/lib/types'
 import { ACTIVE_STATUSES, STATUS_COLORS } from '@/lib/types'
-import { getTeams, getPlayers, deletePlayer } from '@/lib/supabase/queries'
+import { getTeams, getPlayers, deletePlayer, upsertPlayer } from '@/lib/supabase/queries'
 import Modal from '@/components/Modal'
 import PlayerForm from '@/components/PlayerForm'
 
@@ -59,6 +59,12 @@ export default function PlayersPage() {
     })
     setEditPlayer(null)
     setShowAddModal(false)
+  }
+
+  async function handleStatusChange(player: Player, newStatus: PlayerStatus) {
+    const updated = { ...player, status: newStatus }
+    setPlayers(prev => prev.map(p => p.id === player.id ? updated : p))
+    await upsertPlayer(updated)
   }
 
   async function handleDelete(player: Player) {
@@ -175,16 +181,20 @@ export default function PlayersPage() {
                   </div>
                 </div>
 
-                {/* Status badge */}
-                <span
-                  className="text-xs font-bold uppercase px-2 py-0.5 rounded-full shrink-0"
+                {/* Status — tappable inline picker */}
+                <select
+                  value={player.status}
+                  onClick={e => e.stopPropagation()}
+                  onChange={e => { e.stopPropagation(); handleStatusChange(player, e.target.value as PlayerStatus) }}
+                  className="text-xs font-bold uppercase rounded-full shrink-0 border-0 focus:outline-none cursor-pointer"
                   style={{
                     background: STATUS_COLORS[player.status] + '22',
                     color: STATUS_COLORS[player.status],
+                    padding: '2px 6px',
                   }}
                 >
-                  {player.status}
-                </span>
+                  {ALL_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
 
                 <span className="text-xs shrink-0" style={{ color: '#6F6B62' }}>›</span>
               </button>
