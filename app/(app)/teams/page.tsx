@@ -33,10 +33,6 @@ export default function TeamsPage() {
     Promise.all([getTeams(), getPlayers()]).then(([t, p]) => {
       setTeams(t)
       setPlayers(p)
-      // Expand all teams by default
-      const exp: Record<string, boolean> = {}
-      t.forEach(team => { exp[team.id] = true })
-      setExpanded(exp)
       setLoading(false)
     })
   }, [])
