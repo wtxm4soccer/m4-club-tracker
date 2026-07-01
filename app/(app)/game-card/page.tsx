@@ -61,10 +61,11 @@ export default function GameCardPage() {
     return () => window.removeEventListener('resize', measure)
   }, [])
 
-  // Prevent body scroll on this page — everything fits on one screen
+  // Prevent scroll on this page — everything fits on one screen
   useEffect(() => {
-    document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = '' }
+    const main = document.querySelector('main') as HTMLElement | null
+    if (main) main.style.overflow = 'hidden'
+    return () => { if (main) main.style.overflow = '' }
   }, [])
 
   useEffect(() => {
