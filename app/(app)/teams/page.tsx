@@ -116,27 +116,28 @@ export default function TeamsPage() {
   const totalActive = players.filter(p => ACTIVE_STATUSES.includes(p.status)).length
 
   return (
-    <div className="px-5 pt-5 pb-4">
-      {/* Page header */}
-      <div className="flex items-center justify-between mb-4">
-        <h2
-          className="text-3xl font-bold uppercase"
-          style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}
-        >
-          Teams
-        </h2>
-        <button
-          onClick={openAddTeam}
-          className="text-sm font-semibold uppercase tracking-wider px-4 py-2 rounded-xl text-white"
-          style={{ background: '#FE5A01' }}
-        >
-          + Team
-        </button>
+    <div className="flex flex-col min-h-full">
+      {/* Sticky header */}
+      <div className="sticky top-0 z-10 px-5 pt-5 pb-4" style={{ background: '#F6F3EE' }}>
+        <div className="flex items-center justify-between">
+          <h2
+            className="text-3xl font-bold uppercase"
+            style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}
+          >
+            Teams
+          </h2>
+          <button
+            onClick={openAddTeam}
+            className="text-sm font-semibold uppercase tracking-wider px-4 py-2 rounded-xl text-white"
+            style={{ background: '#FE5A01' }}
+          >
+            + Team
+          </button>
+        </div>
       </div>
 
-
-      {/* Team cards */}
-      <div className="flex flex-col gap-3">
+      {/* Scrollable team cards */}
+      <div className="flex flex-col gap-3 px-5 pb-4">
         {teams.map(team => {
           const teamPlayers = playersForTeam(team.id)
           const active = teamPlayers.filter(p => ACTIVE_STATUSES.includes(p.status))
