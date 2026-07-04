@@ -46,6 +46,10 @@ export type Coach = {
   email: string | null
   phone: string | null
   notes: string | null
+  agreement_status: 'not_sent' | 'sent' | 'signed'
+  agreement_sent_at: string | null
+  agreement_signed_at: string | null
+  agreement_submission_id: string | null
   created_at: string
   updated_at: string
 }

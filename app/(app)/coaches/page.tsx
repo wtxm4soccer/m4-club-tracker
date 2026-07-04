@@ -112,6 +112,27 @@ export default function CoachesPage() {
     return CERT_TYPES.every(type => c.find(cert => cert.cert_type === type)?.status === 'complete')
   }
 
+  const [sendingAgreement, setSendingAgreement] = useState<string | null>(null)
+  const [agreementMsg, setAgreementMsg] = useState<Record<string, string>>({})
+
+  async function handleSendAgreement(coach: Coach) {
+    if (!coach.email) { alert('Add an email to this coach first.'); return }
+    setSendingAgreement(coach.id)
+    const res = await fetch('/api/docuseal/send-coach', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ coachId: coach.id, coachName: `${coach.first_name} ${coach.last_name}`, email: coach.email }),
+    })
+    setSendingAgreement(null)
+    if (res.ok) {
+      setCoaches(prev => prev.map(c => c.id === coach.id ? { ...c, agreement_status: 'sent', agreement_sent_at: new Date().toISOString() } : c))
+      setAgreementMsg(prev => ({ ...prev, [coach.id]: 'Sent!' }))
+      setTimeout(() => setAgreementMsg(prev => ({ ...prev, [coach.id]: '' })), 3000)
+    } else {
+      alert('Failed to send agreement.')
+    }
+  }
+
   if (loading) return <div className="px-5 pt-8 text-sm" style={{ color: '#6F6B62' }}>Loading…</div>
 
   return (
@@ -259,6 +280,33 @@ export default function CoachesPage() {
                           </div>
                         )
                       })}
+                    </div>
+                  </div>
+
+                  {/* Agreement */}
+                  <div className="mb-3">
+                    <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#6F6B62' }}>
+                      Volunteer Agreement
+                    </p>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={
+                        coach.agreement_status === 'signed' ? { background: '#2F8F5422', color: '#2F8F54' } :
+                        coach.agreement_status === 'sent'   ? { background: '#D98E0422', color: '#D98E04' } :
+                                                              { background: '#E3DFD6',   color: '#B9B4A8' }
+                      }>
+                        {coach.agreement_status === 'signed' ? '✓ Signed' :
+                         coach.agreement_status === 'sent'   ? 'Awaiting Signature' : 'Not Sent'}
+                      </span>
+                      <button
+                        onClick={() => handleSendAgreement(coach)}
+                        disabled={sendingAgreement === coach.id || coach.agreement_status === 'signed'}
+                        className="py-1.5 px-3 rounded-lg text-xs font-semibold uppercase disabled:opacity-50"
+                        style={{ background: '#2C3A52', color: '#fff' }}
+                      >
+                        {sendingAgreement === coach.id ? 'Sending…' :
+                         agreementMsg[coach.id] ? agreementMsg[coach.id] :
+                         coach.agreement_status === 'sent' ? 'Resend' : 'Send Form'}
+                      </button>
                     </div>
                   </div>
 
