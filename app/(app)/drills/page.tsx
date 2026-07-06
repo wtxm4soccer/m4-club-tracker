@@ -146,12 +146,21 @@ export default function DrillsPage() {
                               </p>
                             </div>
                           )}
-                          <div className="rounded-xl p-2.5 text-center" style={{ background: '#F6F3EE' }}>
-                            <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#B9B4A8' }}>Duration</p>
-                            <p className="text-sm font-bold leading-tight" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}>
-                              {data.animation?.duration ?? drill.duration}s
-                            </p>
-                          </div>
+                          {(data as any).drillDetails?.durationMinutes ? (
+                            <div className="rounded-xl p-2.5 text-center" style={{ background: '#F6F3EE' }}>
+                              <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#B9B4A8' }}>Duration</p>
+                              <p className="text-sm font-bold leading-tight" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}>
+                                {(data as any).drillDetails.durationMinutes.min}–{(data as any).drillDetails.durationMinutes.max} min
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="rounded-xl p-2.5 text-center" style={{ background: '#F6F3EE' }}>
+                              <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#B9B4A8' }}>Duration</p>
+                              <p className="text-sm font-bold leading-tight" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}>
+                                {data.animation?.duration ?? drill.duration}s
+                              </p>
+                            </div>
+                          )}
                         </div>
 
                         {/* Skill focus tags */}
