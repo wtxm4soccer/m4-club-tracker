@@ -109,11 +109,7 @@ export default function DrillsPage() {
                     <div className="text-xs truncate" style={{ color: '#6F6B62' }}>{drill.subtitle}</div>
                   )}
                 </div>
-                <span className="text-xs px-2 py-0.5 rounded-full shrink-0"
-                  style={{ background: '#0A0A0A22', color: '#6F6B62' }}>
-                  {drill.field_layout}
-                </span>
-                <span className="text-xs shrink-0" style={{ color: '#6F6B62' }}>
+<span className="text-xs shrink-0" style={{ color: '#6F6B62' }}>
                   {isOpen ? '▲' : '▼'}
                 </span>
               </button>
