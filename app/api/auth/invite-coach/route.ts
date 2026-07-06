@@ -32,6 +32,7 @@ export async function POST(req: NextRequest) {
   // Invite new user
   const { data: invited, error } = await admin.auth.admin.inviteUserByEmail(email, {
     data: { name, role: 'coach' },
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://m4-club-tracker.vercel.app'}/login`,
   })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 

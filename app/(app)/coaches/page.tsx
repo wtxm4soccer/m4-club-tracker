@@ -132,7 +132,8 @@ export default function CoachesPage() {
       setInviteMsg(prev => ({ ...prev, [coach.id]: data.existing ? 'Already has login' : 'Invite sent!' }))
       setTimeout(() => setInviteMsg(prev => ({ ...prev, [coach.id]: '' })), 4000)
     } else {
-      alert('Failed to send invite.')
+      const data = await res.json()
+      alert(`Failed to send invite: ${data.error ?? 'Unknown error'}`)
     }
   }
 
