@@ -118,7 +118,9 @@ export default function DrillsPage() {
               {isOpen && (
                 <div className="border-t px-4 pt-4 pb-3" style={{ borderColor: '#E3DFD6' }}>
                   {data?.elements ? (
-                    <DrillViewer data={data} width={Math.min(400, (typeof window !== 'undefined' ? window.innerWidth : 400) - 72)} />
+                    <div className="flex justify-center">
+                      <DrillViewer data={data} width={Math.min(400, (typeof window !== 'undefined' ? window.innerWidth : 400) - 72)} />
+                    </div>
                   ) : (
                     <p className="text-xs py-4 text-center" style={{ color: '#E05A3A' }}>Invalid drill data — re-upload the JSON.</p>
                   )}
