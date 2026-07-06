@@ -153,8 +153,8 @@ export default function DrillViewer({ data, width }: Props) {
           {/* M4 watermark */}
           <image
             href="/m4shield.png"
-            x={sx(340)} y={sx(340)} width={sx(120)} height={sx(120)}
-            opacity={0.12}
+            x={sx(300)} y={sx(300)} width={sx(200)} height={sx(200)}
+            opacity={0.28}
             style={{ pointerEvents: 'none' }}
           />
 

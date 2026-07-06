@@ -130,29 +130,54 @@ export default function DrillsPage() {
                       {/* Info panel */}
                       <div className="flex-1 flex flex-col justify-between py-3 pr-3 min-w-0">
                         {/* Stats */}
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-2.5">
+                          {(data as any).drillDetails?.spaceSize && (
+                            <div>
+                              <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: '#B9B4A8' }}>Space</p>
+                              <p className="text-sm font-bold leading-none" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}>
+                                {(data as any).drillDetails.spaceSize}
+                              </p>
+                            </div>
+                          )}
+                          {(data as any).drillDetails?.playerRange && (
+                            <div>
+                              <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: '#B9B4A8' }}>Players</p>
+                              <p className="text-sm font-bold leading-none" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}>
+                                {(data as any).drillDetails.playerRange}
+                              </p>
+                            </div>
+                          )}
+                          {(data as any).drillDetails?.format && (
+                            <div>
+                              <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: '#B9B4A8' }}>Format</p>
+                              <p className="text-sm font-bold leading-none capitalize" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}>
+                                {(data as any).drillDetails.format.replace(/-/g, ' ')}
+                              </p>
+                            </div>
+                          )}
                           <div>
                             <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: '#B9B4A8' }}>Duration</p>
-                            <p className="text-lg font-bold leading-none" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}>
-                              {data.animation?.duration ?? drill.duration}s
+                            <p className="text-sm font-bold leading-none" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}>
+                              {data.animation?.duration ?? drill.duration}s · {data.animation?.speed ?? drill.speed}×
                             </p>
                           </div>
-                          <div>
-                            <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: '#B9B4A8' }}>Speed</p>
-                            <p className="text-lg font-bold leading-none" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}>
-                              {data.animation?.speed ?? drill.speed}×
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: '#B9B4A8' }}>Players</p>
-                            <p className="text-lg font-bold leading-none" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}>
-                              {data.elements?.filter((e: any) => e.type === 'player').length ?? '—'}
-                            </p>
-                          </div>
+                          {(data as any).drillDetails?.skillFocus?.length > 0 && (
+                            <div>
+                              <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#B9B4A8' }}>Focus</p>
+                              <div className="flex flex-wrap gap-1">
+                                {(data as any).drillDetails.skillFocus.map((s: string) => (
+                                  <span key={s} className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
+                                    style={{ background: '#FE5A0118', color: '#FE5A01' }}>
+                                    {s}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                           {data.notes && (
-                            <div className="mt-1">
-                              <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#B9B4A8' }}>Notes</p>
-                              <p className="text-xs leading-snug" style={{ color: '#6F6B62' }}>{data.notes}</p>
+                            <div>
+                              <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: '#B9B4A8' }}>Notes</p>
+                              <p className="text-[11px] leading-snug" style={{ color: '#6F6B62' }}>{data.notes}</p>
                             </div>
                           )}
                         </div>
