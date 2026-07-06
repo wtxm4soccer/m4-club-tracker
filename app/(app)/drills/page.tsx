@@ -123,7 +123,7 @@ export default function DrillsPage() {
                       <div className="px-4 pt-4">
                         <DrillViewer
                           data={data}
-                          width={(typeof window !== 'undefined' ? window.innerWidth : 420) - 80}
+                          width={Math.min(480, (typeof window !== 'undefined' ? window.innerWidth : 480) - 80)}
                         />
                       </div>
 

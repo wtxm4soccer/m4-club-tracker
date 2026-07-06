@@ -256,13 +256,6 @@ export default function DrillViewer({ data, width }: Props) {
         </span>
       </div>
 
-      {/* Notes */}
-      {data.notes && (
-        <div className="mt-4 p-3 rounded-xl" style={{ background: '#F6F3EE' }}>
-          <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: '#6F6B62' }}>Notes</p>
-          <p className="text-sm" style={{ color: '#0A0A0A', lineHeight: 1.5 }}>{data.notes}</p>
-        </div>
-      )}
     </div>
   )
 }
