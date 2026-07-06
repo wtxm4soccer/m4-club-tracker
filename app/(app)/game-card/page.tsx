@@ -8,11 +8,14 @@ import { getLatestLineup, saveLineup } from '@/lib/supabase/lineup-queries'
 import { FORMATION_LIBRARY, generateSlots, type Slot } from '@/lib/formations'
 import SoccerField from '@/components/SoccerField'
 import Modal from '@/components/Modal'
+import { useProfile } from '@/lib/profile-context'
+import { createClient } from '@/lib/supabase/client'
 
 const FORMATS = ['5v5', '7v7', '9v9', '11v11'] as const
 type Format = typeof FORMATS[number]
 
 export default function GameCardPage() {
+  const { profile, isCoach } = useProfile()
   const [teams,   setTeams]   = useState<Team[]>([])
   const [players, setPlayers] = useState<Player[]>([])
   const [loading, setLoading] = useState(true)
@@ -20,6 +23,7 @@ export default function GameCardPage() {
   const [teamId,    setTeamId]    = useState('')
   const [format,    setFormat]    = useState<Format>('11v11')
   const [formation, setFormation] = useState('4-3-3')
+  const [savingDefault, setSavingDefault] = useState(false)
   const [date,      setDate]      = useState(new Date().toISOString().slice(0, 10))
   const [slots,     setSlots]     = useState<Slot[]>([])
   const [subs,      setSubs]      = useState<string[]>([])
@@ -75,6 +79,27 @@ export default function GameCardPage() {
       setLoading(false)
     })
   }, [])
+
+  // Load coach preferred format/formation
+  useEffect(() => {
+    if (!isCoach || !profile?.coach_id) return
+    const supabase = createClient()
+    supabase.from('coaches').select('preferred_format, preferred_formation').eq('id', profile.coach_id).single()
+      .then(({ data }) => {
+        if (data?.preferred_format) setFormat(data.preferred_format as Format)
+        if (data?.preferred_formation) setFormation(data.preferred_formation)
+      })
+  }, [isCoach, profile?.coach_id])
+
+  async function handleSaveDefault() {
+    if (!profile?.coach_id) return
+    setSavingDefault(true)
+    const supabase = createClient()
+    await supabase.from('coaches')
+      .update({ preferred_format: format, preferred_formation: formation })
+      .eq('id', profile.coach_id)
+    setSavingDefault(false)
+  }
 
   useEffect(() => {
     if (!teamId) return
@@ -219,6 +244,18 @@ export default function GameCardPage() {
             {FORMATION_LIBRARY[format].map(f => <option key={f.name} value={f.name}>{f.name}</option>)}
           </select>
         </div>
+
+        {/* Set as Default — coaches only */}
+        {isCoach && (
+          <button
+            onClick={handleSaveDefault}
+            disabled={savingDefault}
+            className="mt-2 w-full py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider border disabled:opacity-50"
+            style={{ borderColor: '#E3DFD6', color: '#6F6B62' }}
+          >
+            {savingDefault ? 'Saving…' : '★ Set as My Default'}
+          </button>
+        )}
       </div>
 
       {/* ── Bench — single horizontal scrollable row above field ── */}

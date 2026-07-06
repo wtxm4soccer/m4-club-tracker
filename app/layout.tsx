@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { ProfileProvider } from '@/lib/profile-context'
 
 export const metadata: Metadata = {
   title: "M4 Club Tracker",
@@ -19,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body><ProfileProvider>{children}</ProfileProvider></body>
     </html>
   );
 }

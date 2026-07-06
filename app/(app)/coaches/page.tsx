@@ -114,6 +114,27 @@ export default function CoachesPage() {
 
   const [sendingAgreement, setSendingAgreement] = useState<string | null>(null)
   const [agreementMsg, setAgreementMsg] = useState<Record<string, string>>({})
+  const [inviting, setInviting] = useState<string | null>(null)
+  const [inviteMsg, setInviteMsg] = useState<Record<string, string>>({})
+
+  async function handleInviteCoach(coach: Coach) {
+    if (!coach.email) { alert('Add an email to this coach first.'); return }
+    if (!confirm(`Send a login invite to ${coach.email}?`)) return
+    setInviting(coach.id)
+    const res = await fetch('/api/auth/invite-coach', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ coachId: coach.id, email: coach.email, name: `${coach.first_name} ${coach.last_name}` }),
+    })
+    setInviting(null)
+    if (res.ok) {
+      const data = await res.json()
+      setInviteMsg(prev => ({ ...prev, [coach.id]: data.existing ? 'Already has login' : 'Invite sent!' }))
+      setTimeout(() => setInviteMsg(prev => ({ ...prev, [coach.id]: '' })), 4000)
+    } else {
+      alert('Failed to send invite.')
+    }
+  }
 
   async function handleSendAgreement(coach: Coach) {
     if (!coach.email) { alert('Add an email to this coach first.'); return }
@@ -308,6 +329,22 @@ export default function CoachesPage() {
                          coach.agreement_status === 'sent' ? 'Resend' : 'Send Form'}
                       </button>
                     </div>
+                  </div>
+
+                  {/* Login access */}
+                  <div className="mb-3">
+                    <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#6F6B62' }}>
+                      App Access
+                    </p>
+                    <button
+                      onClick={() => handleInviteCoach(coach)}
+                      disabled={inviting === coach.id}
+                      className="w-full py-1.5 px-3 rounded-lg text-xs font-semibold uppercase disabled:opacity-50"
+                      style={{ background: '#2C3A5218', color: '#2C3A52', border: '1px solid #2C3A5230' }}
+                    >
+                      {inviting === coach.id ? 'Sending…' :
+                       inviteMsg[coach.id] ? inviteMsg[coach.id] : '✉ Send Login Invite'}
+                    </button>
                   </div>
 
                   {/* Actions */}

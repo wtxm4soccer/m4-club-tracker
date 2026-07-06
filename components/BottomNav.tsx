@@ -2,11 +2,18 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useProfile } from '@/lib/profile-context'
 
-const tabs = [
+const DIRECTOR_TABS = [
   { href: '/teams',     label: 'Teams',     icon: TabTeams },
   { href: '/players',   label: 'Players',   icon: TabPlayers },
   { href: '/coaches',   label: 'Coaches',   icon: TabCoaches },
+  { href: '/game-card', label: 'Game Card', icon: TabGameCard },
+  { href: '/drills',    label: 'Drills',    icon: TabDrills },
+]
+
+const COACH_TABS = [
+  { href: '/teams',     label: 'Teams',     icon: TabTeams },
   { href: '/game-card', label: 'Game Card', icon: TabGameCard },
   { href: '/drills',    label: 'Drills',    icon: TabDrills },
 ]
@@ -16,6 +23,8 @@ const DIM    = 'rgba(255,255,255,0.4)'
 
 export default function BottomNav() {
   const pathname = usePathname()
+  const { isCoach } = useProfile()
+  const tabs = isCoach ? COACH_TABS : DIRECTOR_TABS
 
   return (
     <nav
@@ -43,7 +52,6 @@ export default function BottomNav() {
           )
         })}
       </div>
-      {/* Safe area for phones with home indicator */}
       <div style={{ height: 'env(safe-area-inset-bottom)' }} />
     </nav>
   )
