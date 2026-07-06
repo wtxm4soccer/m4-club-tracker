@@ -205,14 +205,15 @@ export default function DrillViewer({ data, width }: Props) {
             }
 
             if (el.type === 'gate') {
-              const w = sx((el.width ?? 50) * 0.45)
-              const h = sx((el.size ?? 10) * 0.55)
+              const w = sx((el.width ?? 50) * 0.28)
+              const h = sx((el.size ?? 10) * 0.9)
               const rot = el.rotation ?? 0
+              // Chevron/arrowhead shape — two lines meeting at a point
               return (
                 <g key={el.id} transform={`rotate(${rot} ${cx} ${cy})`}>
-                  <line x1={cx - w / 2} y1={cy - h} x2={cx - w / 2} y2={cy + h}
+                  <line x1={cx - w} y1={cy + h} x2={cx} y2={cy - h}
                     stroke={color} strokeWidth={2.5} strokeLinecap="round" />
-                  <line x1={cx + w / 2} y1={cy - h} x2={cx + w / 2} y2={cy + h}
+                  <line x1={cx + w} y1={cy + h} x2={cx} y2={cy - h}
                     stroke={color} strokeWidth={2.5} strokeLinecap="round" />
                 </g>
               )
