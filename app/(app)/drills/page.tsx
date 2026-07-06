@@ -118,80 +118,75 @@ export default function DrillsPage() {
               {isOpen && (
                 <div className="border-t" style={{ borderColor: '#E3DFD6' }}>
                   {data?.elements ? (
-                    <div className="flex gap-0">
-                      {/* Animation */}
-                      <div className="shrink-0 p-3">
+                    <>
+                      {/* Full-width animation */}
+                      <div className="px-4 pt-4">
                         <DrillViewer
                           data={data}
-                          width={Math.min(260, (typeof window !== 'undefined' ? window.innerWidth : 380) - 160)}
+                          width={(typeof window !== 'undefined' ? window.innerWidth : 420) - 80}
                         />
                       </div>
 
-                      {/* Info panel */}
-                      <div className="flex-1 flex flex-col justify-between py-3 pr-3 min-w-0">
-                        {/* Stats */}
-                        <div className="flex flex-col gap-2.5">
+                      {/* Details grid */}
+                      <div className="px-4 pt-4 pb-2">
+                        <div className="grid grid-cols-3 gap-2 mb-3">
                           {(data as any).drillDetails?.spaceSize && (
-                            <div>
-                              <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: '#B9B4A8' }}>Space</p>
-                              <p className="text-sm font-bold leading-none" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}>
+                            <div className="rounded-xl p-2.5 text-center" style={{ background: '#F6F3EE' }}>
+                              <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#B9B4A8' }}>Space</p>
+                              <p className="text-sm font-bold leading-tight" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}>
                                 {(data as any).drillDetails.spaceSize}
                               </p>
                             </div>
                           )}
                           {(data as any).drillDetails?.playerRange && (
-                            <div>
-                              <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: '#B9B4A8' }}>Players</p>
-                              <p className="text-sm font-bold leading-none" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}>
+                            <div className="rounded-xl p-2.5 text-center" style={{ background: '#F6F3EE' }}>
+                              <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#B9B4A8' }}>Players</p>
+                              <p className="text-sm font-bold leading-tight" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}>
                                 {(data as any).drillDetails.playerRange}
                               </p>
                             </div>
                           )}
-                          {(data as any).drillDetails?.format && (
-                            <div>
-                              <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: '#B9B4A8' }}>Format</p>
-                              <p className="text-sm font-bold leading-none capitalize" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}>
-                                {(data as any).drillDetails.format.replace(/-/g, ' ')}
-                              </p>
-                            </div>
-                          )}
-                          <div>
-                            <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: '#B9B4A8' }}>Duration</p>
-                            <p className="text-sm font-bold leading-none" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}>
-                              {data.animation?.duration ?? drill.duration}s · {data.animation?.speed ?? drill.speed}×
+                          <div className="rounded-xl p-2.5 text-center" style={{ background: '#F6F3EE' }}>
+                            <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#B9B4A8' }}>Duration</p>
+                            <p className="text-sm font-bold leading-tight" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}>
+                              {data.animation?.duration ?? drill.duration}s
                             </p>
                           </div>
-                          {(data as any).drillDetails?.skillFocus?.length > 0 && (
-                            <div>
-                              <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#B9B4A8' }}>Focus</p>
-                              <div className="flex flex-wrap gap-1">
-                                {(data as any).drillDetails.skillFocus.map((s: string) => (
-                                  <span key={s} className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
-                                    style={{ background: '#FE5A0118', color: '#FE5A01' }}>
-                                    {s}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                          {data.notes && (
-                            <div>
-                              <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: '#B9B4A8' }}>Notes</p>
-                              <p className="text-[11px] leading-snug" style={{ color: '#6F6B62' }}>{data.notes}</p>
-                            </div>
-                          )}
                         </div>
+
+                        {/* Skill focus tags */}
+                        {(data as any).drillDetails?.skillFocus?.length > 0 && (
+                          <div className="mb-3">
+                            <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: '#B9B4A8' }}>Skill Focus</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {(data as any).drillDetails.skillFocus.map((s: string) => (
+                                <span key={s} className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                                  style={{ background: '#FE5A0115', color: '#FE5A01', border: '1px solid #FE5A0130' }}>
+                                  {s}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Notes */}
+                        {data.notes && (
+                          <div className="mb-3">
+                            <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#B9B4A8' }}>Notes</p>
+                            <p className="text-sm leading-snug" style={{ color: '#6F6B62' }}>{data.notes}</p>
+                          </div>
+                        )}
 
                         {/* Delete */}
                         <button
                           onClick={() => handleDelete(drill)}
-                          className="mt-3 w-full py-1.5 rounded-lg text-xs font-semibold uppercase"
+                          className="w-full py-2 rounded-lg text-xs font-semibold uppercase mb-1"
                           style={{ color: '#E05A3A', background: '#FEF0EC' }}
                         >
-                          Delete
+                          Delete Drill
                         </button>
                       </div>
-                    </div>
+                    </>
                   ) : (
                     <p className="text-xs py-4 text-center px-4" style={{ color: '#E05A3A' }}>Invalid drill data — re-upload the JSON.</p>
                   )}
