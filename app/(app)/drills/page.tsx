@@ -121,7 +121,11 @@ export default function DrillsPage() {
               {/* Expanded — viewer */}
               {isOpen && (
                 <div className="border-t px-4 pt-4 pb-3" style={{ borderColor: '#E3DFD6' }}>
-                  <DrillViewer data={data} width={Math.min(340, window.innerWidth - 72)} />
+                  {data?.elements ? (
+                    <DrillViewer data={data} width={Math.min(400, (typeof window !== 'undefined' ? window.innerWidth : 400) - 72)} />
+                  ) : (
+                    <p className="text-xs py-4 text-center" style={{ color: '#E05A3A' }}>Invalid drill data — re-upload the JSON.</p>
+                  )}
                   <button
                     onClick={() => handleDelete(drill)}
                     className="mt-3 w-full py-2 rounded-lg text-xs font-semibold uppercase"
