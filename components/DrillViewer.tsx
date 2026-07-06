@@ -205,16 +205,18 @@ export default function DrillViewer({ data, width }: Props) {
             }
 
             if (el.type === 'gate') {
-              const s = sx((el.size ?? 10) * 0.8)
-              const gap = sx((el.width ?? 50) * 0.22)
-              const rot = el.rotation ?? 0
-              // Two small cones (triangles) side by side
+              const s = sx(el.size ?? 10)
+              const gap = sx((el.width ?? 50) / 2)
+              const rad = ((el.rotation ?? 0) * Math.PI) / 180
+              // Rotate the offset positions, keep each cone pointing upward
+              const dx = Math.cos(rad) * gap
+              const dy = Math.sin(rad) * gap
               const cone = (ox: number, oy: number) =>
                 `${ox},${oy - s} ${ox - s * 0.75},${oy + s * 0.55} ${ox + s * 0.75},${oy + s * 0.55}`
               return (
-                <g key={el.id} transform={`rotate(${rot} ${cx} ${cy})`}>
-                  <polygon points={cone(cx - gap, cy)} fill={color} opacity={0.9} />
-                  <polygon points={cone(cx + gap, cy)} fill={color} opacity={0.9} />
+                <g key={el.id}>
+                  <polygon points={cone(cx - dx, cy - dy)} fill={color} opacity={0.9} />
+                  <polygon points={cone(cx + dx, cy + dy)} fill={color} opacity={0.9} />
                 </g>
               )
             }
