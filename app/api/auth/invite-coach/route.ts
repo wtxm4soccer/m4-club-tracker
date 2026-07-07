@@ -20,24 +20,15 @@ export async function POST(req: NextRequest) {
   const { coachId, email, name } = await req.json()
   if (!coachId || !email) return NextResponse.json({ error: 'Missing coachId or email' }, { status: 400 })
 
-  // Check if user already exists
-  const { data: existing } = await admin.auth.admin.listUsers()
-  const alreadyExists = existing?.users?.find(u => u.email === email)
-  if (alreadyExists) {
-    // Just ensure profile is linked
-    await admin.from('profiles').upsert({ id: alreadyExists.id, role: 'coach', coach_id: coachId })
-    return NextResponse.json({ ok: true, existing: true })
-  }
-
-  // Invite new user
+  // Invite new user (Supabase handles existing users gracefully)
   const { data: invited, error } = await admin.auth.admin.inviteUserByEmail(email, {
     data: { name, role: 'coach' },
     redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://m4-club-tracker.vercel.app'}/set-password`,
   })
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: error.message || JSON.stringify(error) }, { status: 500 })
 
-  // Create profile
-  await admin.from('profiles').insert({ id: invited.user.id, role: 'coach', coach_id: coachId })
+  // Upsert profile (handles re-invites)
+  await admin.from('profiles').upsert({ id: invited.user.id, role: 'coach', coach_id: coachId })
 
   return NextResponse.json({ ok: true })
 }
