@@ -25,7 +25,10 @@ export async function POST(req: NextRequest) {
     data: { name, role: 'coach' },
     redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://m4-club-tracker.vercel.app'}/set-password`,
   })
-  if (error) return NextResponse.json({ error: error.message || JSON.stringify(error) }, { status: 500 })
+  if (error) {
+    console.error('Invite error:', JSON.stringify(error), error.message, error.status, error.code)
+    return NextResponse.json({ error: error.message || error.code || JSON.stringify(error) }, { status: 500 })
+  }
 
   // Upsert profile (handles re-invites)
   await admin.from('profiles').upsert({ id: invited.user.id, role: 'coach', coach_id: coachId })
