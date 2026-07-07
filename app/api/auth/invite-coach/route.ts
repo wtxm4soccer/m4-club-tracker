@@ -4,11 +4,8 @@ import { createClient } from '@/lib/supabase/server'
 
 const admin = createAdminClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-  {
-    auth: { autoRefreshToken: false, persistSession: false },
-    accessToken: async () => process.env.SUPABASE_SECRET_KEY!,
-  }
+  process.env.SUPABASE_SECRET_KEY!,
+  { auth: { autoRefreshToken: false, persistSession: false } }
 )
 
 export async function POST(req: NextRequest) {
@@ -31,6 +28,11 @@ export async function POST(req: NextRequest) {
   if (error) {
     console.error('Invite error:', JSON.stringify(error), error.message, error.status, error.code)
     return NextResponse.json({ error: error.message || error.code || JSON.stringify(error) }, { status: 500 })
+  }
+
+  if (!invited?.user) {
+    console.error('Invite returned no user:', JSON.stringify(invited))
+    return NextResponse.json({ error: 'Invite returned no user' }, { status: 500 })
   }
 
   // Upsert profile (handles re-invites)
