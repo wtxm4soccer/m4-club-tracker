@@ -4,8 +4,11 @@ import { createClient } from '@/lib/supabase/server'
 
 const admin = createAdminClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SECRET_KEY!,
-  { auth: { autoRefreshToken: false, persistSession: false } }
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+  {
+    auth: { autoRefreshToken: false, persistSession: false },
+    accessToken: async () => process.env.SUPABASE_SECRET_KEY!,
+  }
 )
 
 export async function POST(req: NextRequest) {
