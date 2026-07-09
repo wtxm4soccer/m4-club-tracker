@@ -104,6 +104,36 @@ export default function TeamsPage() {
   // Export
   const [exportingTeamId, setExportingTeamId] = useState<string | null>(null)
 
+  // Calendar share
+  const [sharingCalendarId, setSharingCalendarId] = useState<string | null>(null)
+  const [calendarShareMsg, setCalendarShareMsg]   = useState<Record<string, string>>({})
+
+  async function handleShareCalendarToAll(team: Team) {
+    if (!team.calendar_url) { alert('No calendar URL set for this team. Edit the team to add one.'); return }
+    const eligible = playersForTeam(team.id).filter(p => ACTIVE_STATUSES.includes(p.status) && p.parent_email)
+    if (!eligible.length) { alert('No active players with a parent email on file.'); return }
+    if (!confirm(`Send the practice calendar to ${eligible.length} parent${eligible.length > 1 ? 's' : ''}?`)) return
+    setSharingCalendarId(team.id)
+    let sent = 0
+    for (const p of eligible) {
+      const res = await fetch('/api/email/share-calendar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          parentEmail: p.parent_email,
+          parentName:  p.parent_name ?? '',
+          playerName:  `${p.first_name} ${p.last_name}`,
+          teamName:    team.name,
+          calendarUrl: team.calendar_url,
+        }),
+      })
+      if (res.ok) sent++
+    }
+    setSharingCalendarId(null)
+    setCalendarShareMsg(prev => ({ ...prev, [team.id]: `✓ Sent to ${sent} of ${eligible.length}` }))
+    setTimeout(() => setCalendarShareMsg(prev => ({ ...prev, [team.id]: '' })), 5000)
+  }
+
   useEffect(() => {
     Promise.all([getTeams(), getPlayers()]).then(([t, p]) => {
       setTeams(t); setPlayers(p)
@@ -385,6 +415,23 @@ export default function TeamsPage() {
                       {exportingTeamId === team.id ? '…' : 'Apparel CSV'}
                     </button>
                   </div>
+                  {team.calendar_url && (
+                    <div className="pb-2">
+                      <button
+                        onClick={() => handleShareCalendarToAll(team)}
+                        disabled={sharingCalendarId === team.id}
+                        className="w-full py-2 rounded-lg text-xs font-semibold uppercase tracking-wider border disabled:opacity-50"
+                        style={{ borderColor: '#FE5A01', color: '#FE5A01' }}
+                      >
+                        {sharingCalendarId === team.id ? 'Sending…' : '📅 Share Calendar to All Parents'}
+                      </button>
+                      {calendarShareMsg[team.id] && (
+                        <p className="text-xs text-center mt-1 font-semibold" style={{ color: '#2F8F54' }}>
+                          {calendarShareMsg[team.id]}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
