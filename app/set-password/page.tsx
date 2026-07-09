@@ -15,19 +15,24 @@ export default function SetPasswordPage() {
   useEffect(() => {
     const supabase = createClient()
 
-    // Check if session already exists
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) { setReady(true); return }
-    })
+    async function exchange() {
+      // Parse hash params manually
+      const hash = window.location.hash.substring(1)
+      const params = new URLSearchParams(hash)
+      const accessToken  = params.get('access_token')
+      const refreshToken = params.get('refresh_token')
 
-    // Listen for auth state changes (Supabase exchanges the hash token automatically)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if ((event === 'SIGNED_IN' || event === 'PASSWORD_RECOVERY') && session) {
-        setReady(true)
+      if (accessToken && refreshToken) {
+        const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
+        if (!error) { setReady(true); return }
       }
-    })
 
-    return () => subscription.unsubscribe()
+      // Fallback: check existing session
+      const { data } = await supabase.auth.getSession()
+      if (data.session) setReady(true)
+    }
+
+    exchange()
   }, [])
 
   async function handleSubmit(e: React.FormEvent) {
