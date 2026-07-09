@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/server'
+import nodemailer from 'nodemailer'
 
 const admin = createAdminClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -40,21 +41,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to create invite link' }, { status: 500 })
   }
 
-  // Send email via Resend directly
+  // Send email via Gmail SMTP
   const inviteUrl = linkData.properties?.action_link
-  const resendRes = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD,
     },
-    body: JSON.stringify({
-      from: 'M4 Soccer Academy <onboarding@resend.dev>',
+  })
+
+  try {
+    await transporter.sendMail({
+      from: `"M4 Soccer Academy" <${process.env.GMAIL_USER}>`,
       to: email,
-      subject: 'You\'ve been invited to M4 Club Tracker',
+      subject: "You've been invited to M4 Club Tracker",
       html: `
         <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px">
-          <img src="https://m4-club-tracker.vercel.app/m4shield.png" width="64" style="margin-bottom:16px"/>
           <h2 style="margin:0 0 8px;font-size:24px">M4 Soccer Academy</h2>
           <p>Hi ${name},</p>
           <p>You've been invited to access the M4 Club Tracker as a coach. Click the button below to set your password and get started.</p>
@@ -65,13 +70,10 @@ export async function POST(req: NextRequest) {
           <p style="color:#888;font-size:12px">Love God · Love People · Play Soccer</p>
         </div>
       `,
-    }),
-  })
-
-  if (!resendRes.ok) {
-    const resendErr = await resendRes.json()
-    console.error('Resend error:', resendErr)
-    return NextResponse.json({ error: `Email failed: ${resendErr.message}` }, { status: 500 })
+    })
+  } catch (e: any) {
+    console.error('Gmail error:', e.message)
+    return NextResponse.json({ error: `Email failed: ${e.message}` }, { status: 500 })
   }
 
   // Upsert profile (handles re-invites)
