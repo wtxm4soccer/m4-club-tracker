@@ -42,7 +42,7 @@ export type Coach = {
   id: string
   first_name: string
   last_name: string
-  role: 'Head Coach' | 'Assistant Coach' | 'Club Director' | 'Volunteer'
+  role: 'Head Coach' | 'Assistant Coach' | 'Club Director' | 'Volunteer' | 'Team Manager'
   teams: string[]
   email: string | null
   phone: string | null

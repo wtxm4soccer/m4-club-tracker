@@ -64,7 +64,7 @@ export default function SetPasswordPage() {
       .eq('id', user!.id)
       .single()
 
-    router.push(profile?.role === 'coach' ? '/game-card' : '/teams')
+    router.push(profile?.role === 'director' ? '/teams' : '/game-card')
     router.refresh()
   }
 

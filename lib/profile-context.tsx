@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
-export type UserRole = 'director' | 'coach' | null
+export type UserRole = 'director' | 'coach' | 'team_manager' | null
 
 export type Profile = {
   id: string
@@ -60,7 +60,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       profile,
       loading,
       isDirector: profile?.role === 'director',
-      isCoach: profile?.role === 'coach',
+      isCoach: profile?.role === 'coach' || profile?.role === 'team_manager',
     }}>
       {children}
     </ProfileContext.Provider>

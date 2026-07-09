@@ -14,6 +14,7 @@ const ROLE_COLORS: Record<Coach['role'], string> = {
   'Club Director':    '#FE5A01',
   'Head Coach':       '#2C3A52',
   'Assistant Coach':  '#6B4FA0',
+  'Team Manager':     '#2F8F54',
   'Volunteer':        '#6F6B62',
 }
 
@@ -124,7 +125,7 @@ export default function CoachesPage() {
     const res = await fetch('/api/auth/invite-coach', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ coachId: coach.id, email: coach.email, name: `${coach.first_name} ${coach.last_name}` }),
+      body: JSON.stringify({ coachId: coach.id, email: coach.email, name: `${coach.first_name} ${coach.last_name}`, coachRole: coach.role }),
     })
     setInviting(null)
     if (res.ok) {

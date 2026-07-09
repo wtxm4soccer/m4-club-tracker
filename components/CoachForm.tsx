@@ -5,7 +5,7 @@ import type { Coach, Team } from '@/lib/types'
 import { upsertCoach } from '@/lib/supabase/queries'
 import { seedCoachCertifications, seedCoachApparel } from '@/lib/supabase/coach-queries'
 
-const ROLES: Coach['role'][] = ['Club Director', 'Head Coach', 'Assistant Coach', 'Volunteer']
+const ROLES: Coach['role'][] = ['Club Director', 'Head Coach', 'Assistant Coach', 'Team Manager', 'Volunteer']
 
 function formatPhone(value: string): string {
   const digits = value.replace(/\D/g, '').slice(0, 10)

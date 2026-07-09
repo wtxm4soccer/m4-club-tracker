@@ -18,8 +18,9 @@ export async function POST(req: NextRequest) {
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   if (profile?.role !== 'director') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-  const { coachId, email, name } = await req.json()
+  const { coachId, email, name, coachRole } = await req.json()
   if (!coachId || !email) return NextResponse.json({ error: 'Missing coachId or email' }, { status: 400 })
+  const profileRole = coachRole === 'Team Manager' ? 'team_manager' : 'coach'
 
   // Create user and generate invite link (bypasses Supabase email, we send via Resend)
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://m4-club-tracker.vercel.app'
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest) {
     type: 'invite',
     email,
     options: {
-      data: { name, role: 'coach' },
+      data: { name, role: profileRole },
       redirectTo: `${siteUrl}/set-password`,
     },
   })
@@ -77,7 +78,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Upsert profile (handles re-invites)
-  await admin.from('profiles').upsert({ id: linkData.user.id, role: 'coach', coach_id: coachId })
+  await admin.from('profiles').upsert({ id: linkData.user.id, role: profileRole, coach_id: coachId })
 
   return NextResponse.json({ ok: true })
 }

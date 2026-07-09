@@ -32,10 +32,10 @@ export default function LoginPage() {
       .eq('id', data.user.id)
       .single()
 
-    if (profile?.role === 'coach') {
-      router.push('/game-card')
-    } else {
+    if (profile?.role === 'director') {
       router.push('/teams')
+    } else {
+      router.push('/game-card')
     }
     router.refresh()
   }
