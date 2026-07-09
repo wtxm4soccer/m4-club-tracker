@@ -167,14 +167,14 @@ export default function CoachesPage() {
             className="text-3xl font-bold uppercase"
             style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#0A0A0A' }}
           >
-            Coaches
+            Staff
           </h2>
           <button
             onClick={() => setShowAddModal(true)}
             className="text-sm font-semibold uppercase tracking-wider px-4 py-2 rounded-xl text-white"
             style={{ background: '#2C3A52' }}
           >
-            + Coach
+            + Staff
           </button>
         </div>
 
@@ -381,7 +381,7 @@ export default function CoachesPage() {
 
       {/* Add modal */}
       {showAddModal && (
-        <Modal title="Add Coach" onClose={() => setShowAddModal(false)}>
+        <Modal title="Add Staff" onClose={() => setShowAddModal(false)}>
           <CoachForm
             teams={teams}
             onSave={handleCoachSaved}
@@ -392,7 +392,7 @@ export default function CoachesPage() {
 
       {/* Edit modal */}
       {editCoach && (
-        <Modal title="Edit Coach" onClose={() => setEditCoach(null)}>
+        <Modal title="Edit Staff" onClose={() => setEditCoach(null)}>
           <CoachForm
             teams={teams}
             coach={editCoach}

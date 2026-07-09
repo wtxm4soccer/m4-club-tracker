@@ -7,7 +7,7 @@ import { useProfile } from '@/lib/profile-context'
 const DIRECTOR_TABS = [
   { href: '/teams',     label: 'Teams',     icon: TabTeams },
   { href: '/players',   label: 'Players',   icon: TabPlayers },
-  { href: '/coaches',   label: 'Coaches',   icon: TabCoaches },
+  { href: '/coaches',   label: 'Staff',     icon: TabCoaches },
   { href: '/game-card', label: 'Game Card', icon: TabGameCard },
   { href: '/drills',    label: 'Drills',    icon: TabDrills },
 ]

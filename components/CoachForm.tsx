@@ -160,7 +160,7 @@ export default function CoachForm({ teams, coach, onSave, onCancel }: Props) {
         <button type="submit" disabled={saving}
           className="flex-1 py-3 rounded-xl text-sm font-semibold uppercase text-white disabled:opacity-50"
           style={{ background: '#2C3A52' }}>
-          {saving ? 'Saving…' : isNew ? 'Add Coach' : 'Save Changes'}
+          {saving ? 'Saving…' : isNew ? 'Add Staff' : 'Save Changes'}
         </button>
       </div>
     </form>
