@@ -13,17 +13,21 @@ export default function SetPasswordPage() {
   const router = useRouter()
 
   useEffect(() => {
-    // Supabase auto-exchanges the invite token from the URL hash
     const supabase = createClient()
-    supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_IN' || event === 'PASSWORD_RECOVERY') {
+
+    // Check if session already exists
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) { setReady(true); return }
+    })
+
+    // Listen for auth state changes (Supabase exchanges the hash token automatically)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if ((event === 'SIGNED_IN' || event === 'PASSWORD_RECOVERY') && session) {
         setReady(true)
       }
     })
-    // Also check if already signed in (token already exchanged)
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setReady(true)
-    })
+
+    return () => subscription.unsubscribe()
   }, [])
 
   async function handleSubmit(e: React.FormEvent) {
