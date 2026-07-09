@@ -12,6 +12,7 @@ export type Team = {
   division: string | null
   photo_url: string | null
   docuseal_template_id: string | null
+  calendar_url: string | null
   created_at: string
   updated_at: string
 }

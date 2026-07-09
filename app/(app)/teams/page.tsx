@@ -82,6 +82,7 @@ export default function TeamsPage() {
   const [teamName, setTeamName]               = useState('')
   const [teamDivision, setTeamDivision]       = useState('')
   const [teamTemplateId, setTeamTemplateId]   = useState('')
+  const [teamCalendarUrl, setTeamCalendarUrl] = useState('')
   const [mascotFile, setMascotFile]           = useState<File | null>(null)
   const [mascotPreview, setMascotPreview]     = useState<string>('')
   const [savingTeam, setSavingTeam]           = useState(false)
@@ -119,12 +120,13 @@ export default function TeamsPage() {
 
   function openAddTeam() {
     setEditTeam(null); setTeamName(''); setTeamDivision(''); setTeamTemplateId('')
-    setMascotFile(null); setMascotPreview(''); setShowTeamModal(true)
+    setTeamCalendarUrl(''); setMascotFile(null); setMascotPreview(''); setShowTeamModal(true)
   }
 
   function openEditTeam(team: Team) {
     setEditTeam(team); setTeamName(team.name); setTeamDivision(team.division ?? '')
-    setTeamTemplateId(team.docuseal_template_id ?? ''); setMascotFile(null)
+    setTeamTemplateId(team.docuseal_template_id ?? '')
+    setTeamCalendarUrl(team.calendar_url ?? ''); setMascotFile(null)
     setMascotPreview(team.photo_url ?? ''); setShowTeamModal(true)
   }
 
@@ -140,6 +142,7 @@ export default function TeamsPage() {
       ...(editTeam ? { id: editTeam.id } : {}),
       name: teamName.trim(), division: teamDivision.trim() || null,
       docuseal_template_id: teamTemplateId.trim() || null,
+      calendar_url: teamCalendarUrl.trim() || null,
     })
     if (mascotFile) {
       const url = await uploadTeamMascot(saved.id, mascotFile)
@@ -428,6 +431,16 @@ export default function TeamsPage() {
                 placeholder="e.g. 4464458"
               />
               <p className="text-xs mt-1" style={{ color: '#9B968A' }}>From DocuSeal → Templates → copy the ID from the URL</p>
+            </div>
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wider block mb-1" style={{ color: '#6F6B62' }}>Practice Calendar URL</label>
+              <input
+                className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none"
+                style={{ borderColor: '#E3DFD6' }}
+                value={teamCalendarUrl} onChange={e => setTeamCalendarUrl(e.target.value)}
+                placeholder="Paste Google Calendar share link…"
+              />
+              <p className="text-xs mt-1" style={{ color: '#9B968A' }}>Google Calendar → ⚙ Settings → Share → copy the public URL</p>
             </div>
             <div>
               <label className="text-xs font-semibold uppercase tracking-wider block mb-2" style={{ color: '#6F6B62' }}>Mascot Photo</label>

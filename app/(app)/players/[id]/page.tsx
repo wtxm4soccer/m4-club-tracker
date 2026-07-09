@@ -155,9 +155,11 @@ export default function PlayerDetailPage() {
 
 // ─── Info Tab ────────────────────────────────────────────────────────────────
 function InfoTab({ player, teams, onSave, onDelete }: { player: Player; teams: Team[]; onSave: (p: Player) => void; onDelete: () => void }) {
-  const [form, setForm]     = useState({ ...player, team_id: player.team_id ?? '' })
-  const [saving, setSaving] = useState(false)
-  const [saved,  setSaved]  = useState(false)
+  const [form, setForm]         = useState({ ...player, team_id: player.team_id ?? '' })
+  const [saving, setSaving]     = useState(false)
+  const [saved,  setSaved]      = useState(false)
+  const [sharing, setSharing]   = useState(false)
+  const [shareMsg, setShareMsg] = useState('')
 
   function formatPhone(value: string): string {
     const digits = value.replace(/\D/g, '').slice(0, 10)
@@ -182,6 +184,27 @@ function InfoTab({ player, teams, onSave, onDelete }: { player: Player; teams: T
     setSaving(false)
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
+  }
+
+  async function handleShareCalendar() {
+    const team = teams.find(t => t.id === form.team_id)
+    if (!team?.calendar_url) { alert('No calendar URL set for this team. Edit the team to add one.'); return }
+    if (!player.parent_email) { alert('No parent email on file. Add one above first.'); return }
+    setSharing(true); setShareMsg('')
+    const res = await fetch('/api/email/share-calendar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        parentEmail: player.parent_email,
+        parentName:  player.parent_name ?? '',
+        playerName:  `${player.first_name} ${player.last_name}`,
+        teamName:    team.name,
+        calendarUrl: team.calendar_url,
+      }),
+    })
+    setSharing(false)
+    setShareMsg(res.ok ? '✓ Calendar sent!' : 'Failed to send')
+    setTimeout(() => setShareMsg(''), 4000)
   }
 
   const field = 'w-full border rounded-lg px-3 py-2 text-sm bg-white focus:outline-none'
@@ -308,6 +331,22 @@ function InfoTab({ player, teams, onSave, onDelete }: { player: Player; teams: T
           className="w-4 h-4" style={{ accentColor: '#FE5A01' }} />
         <span className="text-sm" style={{ color: '#0A0A0A' }}>Added to TeamReach group</span>
       </label>
+
+      <div className="flex flex-col gap-2">
+        <button
+          onClick={handleShareCalendar}
+          disabled={sharing}
+          className="w-full py-3 rounded-xl text-sm font-semibold uppercase tracking-wider disabled:opacity-50"
+          style={{ background: '#F6F3EE', color: '#FE5A01', border: '1px solid #FE5A01' }}
+        >
+          {sharing ? 'Sending…' : '📅 Share Practice Calendar'}
+        </button>
+        {shareMsg && (
+          <p className="text-xs text-center font-semibold" style={{ color: shareMsg.startsWith('✓') ? '#2F8F54' : '#E05A3A' }}>
+            {shareMsg}
+          </p>
+        )}
+      </div>
 
       <button onClick={handleSave} disabled={saving}
         className="w-full py-3 rounded-xl text-sm font-semibold uppercase tracking-wider text-white disabled:opacity-50"
