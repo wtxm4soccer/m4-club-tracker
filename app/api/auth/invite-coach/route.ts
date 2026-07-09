@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/server'
-import nodemailer from 'nodemailer'
+import { Resend } from 'resend'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 const admin = createAdminClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -42,28 +44,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to create invite link' }, { status: 500 })
   }
 
-  // Send email via Gmail SMTP
+  // Send invite email via Resend
   const inviteUrl = linkData.properties?.action_link
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD,
-    },
-  })
-
   try {
-    await transporter.sendMail({
-      from: `"M4 Soccer Academy" <${process.env.GMAIL_USER}>`,
+    await resend.emails.send({
+      from: 'M4 Soccer Academy <noreply@wtxm4soccer.com>',
       to: email,
       subject: "You've been invited to M4 Club Tracker",
       html: `
         <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px">
           <h2 style="margin:0 0 8px;font-size:24px">M4 Soccer Academy</h2>
           <p>Hi ${name},</p>
-          <p>You've been invited to access the M4 Club Tracker as a coach. Click the button below to set your password and get started.</p>
+          <p>You've been invited to access the M4 Club Tracker. Click the button below to set your password and get started.</p>
           <a href="${inviteUrl}" style="display:inline-block;margin:24px 0;padding:12px 28px;background:#FE5A01;color:#fff;text-decoration:none;border-radius:8px;font-weight:600">
             Accept Invite & Set Password
           </a>
@@ -73,7 +65,7 @@ export async function POST(req: NextRequest) {
       `,
     })
   } catch (e: any) {
-    console.error('Gmail error:', e.message)
+    console.error('Resend error:', e.message)
     return NextResponse.json({ error: `Email failed: ${e.message}` }, { status: 500 })
   }
 

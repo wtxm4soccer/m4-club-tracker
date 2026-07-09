@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import nodemailer from 'nodemailer'
+import { Resend } from 'resend'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(req: NextRequest) {
   const { parentEmail, parentName, playerName, teamName, calendarUrl } = await req.json()
@@ -7,19 +9,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD,
-    },
-  })
-
   try {
-    await transporter.sendMail({
-      from: `"M4 Soccer Academy" <${process.env.GMAIL_USER}>`,
+    await resend.emails.send({
+      from: 'M4 Soccer Academy <noreply@wtxm4soccer.com>',
       to: parentEmail,
       subject: `${teamName} Practice Calendar`,
       html: `
