@@ -189,21 +189,39 @@ function InfoTab({ player, teams, onSave, onDelete }: { player: Player; teams: T
   async function handleShareCalendar() {
     const team = teams.find(t => t.id === form.team_id)
     if (!team?.calendar_url) { alert('No calendar URL set for this team. Edit the team to add one.'); return }
-    if (!player.parent_email) { alert('No parent email on file. Add one above first.'); return }
+    if (!player.parent_email && !player.parent2_email) { alert('No parent email on file. Add one above first.'); return }
     setSharing(true); setShareMsg('')
-    const res = await fetch('/api/email/share-calendar', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        parentEmail: player.parent_email,
-        parentName:  player.parent_name ?? '',
-        playerName:  `${player.first_name} ${player.last_name}`,
-        teamName:    team.name,
-        calendarUrl: team.calendar_url,
-      }),
-    })
+    const sends = []
+    const playerName = `${player.first_name} ${player.last_name}`
+    if (player.parent_email) {
+      sends.push(fetch('/api/email/share-calendar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          parentEmail: player.parent_email,
+          parentName:  player.parent_name ?? '',
+          playerName,
+          teamName:    team.name,
+          calendarUrl: team.calendar_url,
+        }),
+      }))
+    }
+    if (player.parent2_email) {
+      sends.push(fetch('/api/email/share-calendar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          parentEmail: player.parent2_email,
+          parentName:  player.parent2_name ?? '',
+          playerName,
+          teamName:    team.name,
+          calendarUrl: team.calendar_url,
+        }),
+      }))
+    }
+    const results = await Promise.all(sends)
     setSharing(false)
-    setShareMsg(res.ok ? '✓ Calendar sent!' : 'Failed to send')
+    setShareMsg(results.every(r => r.ok) ? '✓ Calendar sent!' : 'Some failed to send')
     setTimeout(() => setShareMsg(''), 4000)
   }
 
