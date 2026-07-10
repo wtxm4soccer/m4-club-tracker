@@ -292,7 +292,7 @@ function InfoTab({ player, teams, onSave, onDelete }: { player: Player; teams: T
       </div>
 
       <div className="border-t pt-4" style={{ borderColor: '#E3DFD6' }}>
-        <p className={lbl} style={{ color: '#6F6B62' }}>Parent / Guardian</p>
+        <p className={lbl} style={{ color: '#6F6B62' }}>Parent / Guardian 1</p>
         <div className="flex flex-col gap-3">
           <input placeholder="Parent name" className={field} style={{ borderColor: '#E3DFD6' }}
             value={form.parent_name ?? ''}
@@ -303,6 +303,21 @@ function InfoTab({ player, teams, onSave, onDelete }: { player: Player; teams: T
           <input type="email" placeholder="Email" className={field} style={{ borderColor: '#E3DFD6' }}
             value={form.parent_email ?? ''}
             onChange={e => setForm(f => ({ ...f, parent_email: e.target.value }))} />
+        </div>
+      </div>
+
+      <div>
+        <p className={lbl} style={{ color: '#6F6B62' }}>Parent / Guardian 2</p>
+        <div className="flex flex-col gap-3">
+          <input placeholder="Parent name" className={field} style={{ borderColor: '#E3DFD6' }}
+            value={form.parent2_name ?? ''}
+            onChange={e => setForm(f => ({ ...f, parent2_name: e.target.value }))} />
+          <input placeholder="(xxx) xxx-xxxx" className={field} style={{ borderColor: '#E3DFD6' }}
+            value={form.parent2_phone ?? ''}
+            onChange={e => setForm(f => ({ ...f, parent2_phone: formatPhone(e.target.value) }))} />
+          <input type="email" placeholder="Email" className={field} style={{ borderColor: '#E3DFD6' }}
+            value={form.parent2_email ?? ''}
+            onChange={e => setForm(f => ({ ...f, parent2_email: e.target.value }))} />
         </div>
       </div>
 

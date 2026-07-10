@@ -29,6 +29,9 @@ export type Player = {
   parent_name: string | null
   parent_phone: string | null
   parent_email: string | null
+  parent2_name: string | null
+  parent2_phone: string | null
+  parent2_email: string | null
   emergency_contact: string | null
   emergency_phone: string | null
   notes: string | null
