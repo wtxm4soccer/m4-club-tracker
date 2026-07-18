@@ -61,7 +61,7 @@ export type Coach = {
 export type Document = {
   id: string
   player_id: string
-  doc_type: 'Waiver' | 'Medical Release' | 'Family Code of Conduct' | 'Player Participation' | 'Proof of Birth' | 'Team Reach'
+  doc_type: 'Waiver' | 'Medical Release' | 'Family Code of Conduct' | 'Player Participation' | 'Proof of Birth'
   status: 'not_sent' | 'sent' | 'signed'
   date_sent: string | null
   date_signed: string | null

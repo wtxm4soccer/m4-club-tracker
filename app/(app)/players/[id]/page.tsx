@@ -16,7 +16,7 @@ type Tab = 'info' | 'documents' | 'assessments' | 'apparel'
 
 const DOC_TYPES: Document['doc_type'][] = [
   'Waiver', 'Medical Release', 'Family Code of Conduct',
-  'Player Participation', 'Proof of Birth', 'Team Reach',
+  'Player Participation', 'Proof of Birth',
 ]
 
 const APPAREL_ITEMS: Apparel['item'][] = ['Shirt', 'Shorts', 'Pants', 'Jacket']
