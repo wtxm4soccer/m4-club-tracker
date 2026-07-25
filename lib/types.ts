@@ -84,7 +84,7 @@ export type Apparel = {
   id: string
   entity_id: string
   entity_type: 'player' | 'coach'
-  item: 'Shirt' | 'Shorts' | 'Pants' | 'Jacket'
+  item: 'Shirt' | 'Shorts' | 'Pants' | 'Jacket' | 'Keeper Kit'
   size: string | null
   status: 'not_issued' | 'issued'
   date_issued: string | null
