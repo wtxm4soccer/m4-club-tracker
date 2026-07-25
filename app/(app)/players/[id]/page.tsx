@@ -750,15 +750,25 @@ function ApparelTab({
   }
 
   async function handleSizeChange(item: Apparel['item'], size: string) {
-    // When first item is set, default all blank non-keeper items to same size
     const nonKeeperItems = APPAREL_ITEMS.filter(i => i !== 'Keeper Kit') as Apparel['item'][]
     const isFirst = nonKeeperItems[0] === item
     const allBlank = nonKeeperItems.slice(1).every(i => !getItem(i)?.size)
 
     if (isFirst && allBlank && size) {
-      for (const i of nonKeeperItems) {
-        await handleChange(i, 'size', size)
-      }
+      // Upsert all non-keeper items in parallel, then set state once
+      const results = await Promise.all(nonKeeperItems.map(i => {
+        const existing = getItem(i)
+        const patch: any = {
+          ...(existing ? { id: existing.id } : {}),
+          entity_id: playerId, entity_type: 'player', item: i,
+          size: size, status: existing?.status ?? 'not_issued', date_issued: null,
+        }
+        return upsertApparel(patch)
+      }))
+      setApparel([
+        ...apparel.filter(a => nonKeeperItems.includes(a.item as Apparel['item']) === false),
+        ...results,
+      ])
     } else {
       await handleChange(item, 'size', size)
     }
