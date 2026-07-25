@@ -751,12 +751,13 @@ function ApparelTab({
 
   async function handleSizeChange(item: Apparel['item'], size: string) {
     const nonKeeperItems = APPAREL_ITEMS.filter(i => i !== 'Keeper Kit') as Apparel['item'][]
-    const isFirst = nonKeeperItems[0] === item
-    const allBlank = nonKeeperItems.slice(1).every(i => !getItem(i)?.size)
+    const isShirt = nonKeeperItems[0] === item
+    const shirtCurrentlyBlank = !getItem(item)?.size
 
-    if (isFirst && allBlank && size) {
-      // Upsert all non-keeper items in parallel, then set state once
-      const results = await Promise.all(nonKeeperItems.map(i => {
+    if (isShirt && shirtCurrentlyBlank && size) {
+      // Fill Shirt + any other blank non-keeper items with the same size
+      const itemsToFill = nonKeeperItems.filter(i => i === item || !getItem(i)?.size)
+      const results = await Promise.all(itemsToFill.map(i => {
         const existing = getItem(i)
         const patch: any = {
           ...(existing ? { id: existing.id } : {}),
@@ -766,7 +767,7 @@ function ApparelTab({
         return upsertApparel(patch)
       }))
       setApparel([
-        ...apparel.filter(a => nonKeeperItems.includes(a.item as Apparel['item']) === false),
+        ...apparel.filter(a => !(itemsToFill as string[]).includes(a.item)),
         ...results,
       ])
     } else {
