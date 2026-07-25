@@ -720,6 +720,8 @@ function AssessmentsTab({
   )
 }
 
+const SIZES = ['YS', 'YM', 'YL', 'S', 'M', 'L', 'XL', 'XXL']
+
 // ─── Apparel Tab ──────────────────────────────────────────────────────────────
 function ApparelTab({
   playerId, apparel, setApparel,
@@ -747,6 +749,21 @@ function ApparelTab({
     ))
   }
 
+  async function handleSizeChange(item: Apparel['item'], size: string) {
+    // When first item is set, default all blank non-keeper items to same size
+    const nonKeeperItems = APPAREL_ITEMS.filter(i => i !== 'Keeper Kit') as Apparel['item'][]
+    const isFirst = nonKeeperItems[0] === item
+    const allBlank = nonKeeperItems.slice(1).every(i => !getItem(i)?.size)
+
+    if (isFirst && allBlank && size) {
+      for (const i of nonKeeperItems) {
+        await handleChange(i, 'size', size)
+      }
+    } else {
+      await handleChange(item, 'size', size)
+    }
+  }
+
   return (
     <div className="rounded-xl overflow-hidden" style={{ background: '#fff', boxShadow: '0 1px 2px rgba(21,21,26,0.06), 0 4px 14px rgba(21,21,26,0.06)' }}>
       {APPAREL_ITEMS.map((item, idx) => {
@@ -767,13 +784,15 @@ function ApparelTab({
                 style={{ accentColor: '#FE5A01' }}
               />
             ) : (
-              <input
+              <select
                 className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none"
                 style={{ borderColor: '#E3DFD6' }}
-                placeholder="Size (YS, YM, S, M, L…)"
                 value={a?.size ?? ''}
-                onChange={e => handleChange(item, 'size', e.target.value)}
-              />
+                onChange={e => handleSizeChange(item as Apparel['item'], e.target.value)}
+              >
+                <option value="">— Size —</option>
+                {SIZES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
             )}
           </div>
         )
