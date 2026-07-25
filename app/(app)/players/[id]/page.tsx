@@ -748,54 +748,32 @@ function ApparelTab({
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      {APPAREL_ITEMS.map(item => {
-        const a       = getItem(item)
-        const status  = a?.status ?? 'not_issued'
+    <div className="rounded-xl overflow-hidden" style={{ background: '#fff', boxShadow: '0 1px 2px rgba(21,21,26,0.06), 0 4px 14px rgba(21,21,26,0.06)' }}>
+      {APPAREL_ITEMS.map((item, idx) => {
+        const a        = getItem(item)
         const isKeeper = item === 'Keeper Kit'
+        const isLast   = idx === APPAREL_ITEMS.length - 1
         return (
           <div key={item}
-            className="rounded-xl p-4"
-            style={{ background: '#fff', boxShadow: '0 1px 2px rgba(21,21,26,0.06), 0 4px 14px rgba(21,21,26,0.06)' }}>
+            className="flex items-center gap-3 px-4 py-3"
+            style={{ borderBottom: isLast ? 'none' : '1px solid #E3DFD6' }}>
+            <span className="text-sm font-semibold w-24 shrink-0" style={{ color: '#0A0A0A' }}>{item}</span>
             {isKeeper ? (
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={status === 'issued'}
-                  onChange={e => handleChange(item, 'status', e.target.checked ? 'issued' : 'not_issued')}
-                  className="w-5 h-5"
-                  style={{ accentColor: '#FE5A01' }}
-                />
-                <span className="font-semibold text-sm" style={{ color: '#0A0A0A' }}>Keeper Kit Issued</span>
-              </label>
+              <input
+                type="checkbox"
+                checked={a?.status === 'issued'}
+                onChange={e => handleChange(item, 'status', e.target.checked ? 'issued' : 'not_issued')}
+                className="w-5 h-5"
+                style={{ accentColor: '#FE5A01' }}
+              />
             ) : (
-              <>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-semibold text-sm" style={{ color: '#0A0A0A' }}>{item}</span>
-                  <select
-                    value={status}
-                    onChange={e => handleChange(item, 'status', e.target.value)}
-                    className="text-xs border rounded-lg px-2 py-1 focus:outline-none font-semibold"
-                    style={{
-                      borderColor: status === 'issued' ? '#2F8F54' : '#B9B4A8',
-                      color:       status === 'issued' ? '#2F8F54' : '#B9B4A8',
-                      background:  (status === 'issued' ? '#2F8F54' : '#B9B4A8') + '18',
-                    }}>
-                    <option value="not_issued">Not Issued</option>
-                    <option value="issued">Issued</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider mb-1 block" style={{ color: '#6F6B62' }}>Size</label>
-                  <input
-                    className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none"
-                    style={{ borderColor: '#E3DFD6' }}
-                    placeholder="YS, YM, S, M, L…"
-                    value={a?.size ?? ''}
-                    onChange={e => handleChange(item, 'size', e.target.value)}
-                  />
-                </div>
-              </>
+              <input
+                className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none"
+                style={{ borderColor: '#E3DFD6' }}
+                placeholder="Size (YS, YM, S, M, L…)"
+                value={a?.size ?? ''}
+                onChange={e => handleChange(item, 'size', e.target.value)}
+              />
             )}
           </div>
         )
