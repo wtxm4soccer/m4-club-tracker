@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 type KF = { t: number; x: number; y: number }
 type DrillElement = {
   id: string
-  type: 'player' | 'cone' | 'ball' | 'gate'
+  type: 'player' | 'cone' | 'ball' | 'gate' | 'goal'
   x: number
   y: number
   label?: string
@@ -200,6 +200,25 @@ export default function DrillViewer({ data, width }: Props) {
                   <circle cx={cx} cy={cy} r={r} fill={color}
                     stroke="rgba(0,0,0,0.4)" strokeWidth={1} />
                   <circle cx={cx} cy={cy} r={r * 0.35} fill="rgba(0,0,0,0.3)" />
+                </g>
+              )
+            }
+
+            if (el.type === 'goal') {
+              const w = sx(el.size ?? 58)   // goal mouth width
+              const d = sx(el.width ?? 17)  // goal depth
+              const rot = el.rotation ?? 0
+              return (
+                <g key={el.id} transform={`rotate(${rot}, ${cx}, ${cy})`}>
+                  {/* back net */}
+                  <rect x={cx - w / 2} y={cy - d} width={w} height={d}
+                    fill="rgba(255,255,255,0.07)" stroke={color} strokeWidth={1.5} />
+                  {/* goal line (front) */}
+                  <line x1={cx - w / 2} y1={cy} x2={cx + w / 2} y2={cy}
+                    stroke={color} strokeWidth={2.5} />
+                  {/* posts */}
+                  <circle cx={cx - w / 2} cy={cy} r={sx(2.5)} fill={color} />
+                  <circle cx={cx + w / 2} cy={cy} r={sx(2.5)} fill={color} />
                 </g>
               )
             }
