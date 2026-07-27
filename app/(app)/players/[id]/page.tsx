@@ -749,30 +749,6 @@ function ApparelTab({
     ))
   }
 
-  async function handleSizeChange(item: Apparel['item'], size: string) {
-    const nonKeeperItems = APPAREL_ITEMS.filter(i => i !== 'Keeper Kit') as Apparel['item'][]
-    const isShirt = nonKeeperItems[0] === item
-    const shirtCurrentlyBlank = !getItem(item)?.size
-
-    if (isShirt && shirtCurrentlyBlank && size) {
-      // Fill Shirt + any other blank non-keeper items with the same size
-      const itemsToFill = nonKeeperItems.filter(i => i === item || !getItem(i)?.size)
-      await Promise.all(itemsToFill.map(i => {
-        const existing = getItem(i)
-        const patch: any = {
-          ...(existing ? { id: existing.id } : {}),
-          entity_id: playerId, entity_type: 'player', item: i,
-          size: size, status: existing?.status ?? 'not_issued', date_issued: null,
-        }
-        return upsertApparel(patch)
-      }))
-      // Refetch from DB to get accurate state rather than merging manually
-      const fresh = await getPlayerApparel(playerId)
-      setApparel(fresh)
-    } else {
-      await handleChange(item, 'size', size)
-    }
-  }
 
   return (
     <div className="rounded-xl overflow-hidden" style={{ background: '#fff', boxShadow: '0 1px 2px rgba(21,21,26,0.06), 0 4px 14px rgba(21,21,26,0.06)' }}>
@@ -798,7 +774,7 @@ function ApparelTab({
                 className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none"
                 style={{ borderColor: '#E3DFD6' }}
                 value={a?.size ?? ''}
-                onChange={e => handleSizeChange(item as Apparel['item'], e.target.value)}
+                onChange={e => handleChange(item as Apparel['item'], 'size', e.target.value)}
               >
                 <option value="">— Size —</option>
                 {SIZES.map(s => <option key={s} value={s}>{s}</option>)}
