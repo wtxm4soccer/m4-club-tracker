@@ -757,7 +757,7 @@ function ApparelTab({
     if (isShirt && shirtCurrentlyBlank && size) {
       // Fill Shirt + any other blank non-keeper items with the same size
       const itemsToFill = nonKeeperItems.filter(i => i === item || !getItem(i)?.size)
-      const results = await Promise.all(itemsToFill.map(i => {
+      await Promise.all(itemsToFill.map(i => {
         const existing = getItem(i)
         const patch: any = {
           ...(existing ? { id: existing.id } : {}),
@@ -766,10 +766,9 @@ function ApparelTab({
         }
         return upsertApparel(patch)
       }))
-      setApparel([
-        ...apparel.filter(a => !(itemsToFill as string[]).includes(a.item)),
-        ...results,
-      ])
+      // Refetch from DB to get accurate state rather than merging manually
+      const fresh = await getPlayerApparel(playerId)
+      setApparel(fresh)
     } else {
       await handleChange(item, 'size', size)
     }
