@@ -19,7 +19,8 @@ export async function POST(req: NextRequest) {
           <h2 style="margin:0 0 8px;font-size:24px">M4 Soccer Academy</h2>
           <p>Hi ${parentName || 'there'},</p>
           <p>Here is the practice and event calendar for <strong>${playerName}</strong>'s team (<strong>${teamName}</strong>).</p>
-          <p>Tap the link below to add the team calendar to your device. If the link does not open automatically, copy and paste it into your browser:</p>
+          <p>Tap the button below to add the team calendar to your device.</p>
+          <p style="font-size:13px;color:#555">If the button does not work, copy and paste the link at the bottom of this email directly into your browser.</p>
           <a href="${calendarUrl}" style="display:inline-block;margin:16px 0;padding:12px 28px;background:#FE5A01;color:#fff;text-decoration:none;border-radius:8px;font-weight:600">
             Add Team Calendar
           </a>
