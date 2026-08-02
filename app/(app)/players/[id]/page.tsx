@@ -160,6 +160,8 @@ function InfoTab({ player, teams, onSave, onDelete }: { player: Player; teams: T
   const [saved,  setSaved]      = useState(false)
   const [sharing, setSharing]   = useState(false)
   const [shareMsg, setShareMsg] = useState('')
+  const [sendingIntro, setSendingIntro] = useState(false)
+  const [introMsg, setIntroMsg]         = useState('')
 
   function formatPhone(value: string): string {
     const digits = value.replace(/\D/g, '').slice(0, 10)
@@ -223,6 +225,31 @@ function InfoTab({ player, teams, onSave, onDelete }: { player: Player; teams: T
     setSharing(false)
     setShareMsg(results.every(r => r.ok) ? '✓ Calendar sent!' : 'Some failed to send')
     setTimeout(() => setShareMsg(''), 4000)
+  }
+
+  async function handleSendIntro() {
+    if (!player.parent_email && !player.parent2_email) { alert('No parent email on file. Add one above first.'); return }
+    const team = teams.find(t => t.id === form.team_id)
+    setSendingIntro(true); setIntroMsg('')
+    const sends = []
+    if (player.parent_email) {
+      sends.push(fetch('/api/email/send-intro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ parentEmail: player.parent_email, parentName: player.parent_name, playerName: `${player.first_name} ${player.last_name}`, teamName: team?.name ?? '' }),
+      }))
+    }
+    if (player.parent2_email) {
+      sends.push(fetch('/api/email/send-intro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ parentEmail: player.parent2_email, parentName: player.parent2_name, playerName: `${player.first_name} ${player.last_name}`, teamName: team?.name ?? '' }),
+      }))
+    }
+    const results = await Promise.all(sends)
+    setSendingIntro(false)
+    setIntroMsg(results.every(r => r.ok) ? '✓ Intro sent!' : 'Some failed to send')
+    setTimeout(() => setIntroMsg(''), 4000)
   }
 
   const field = 'w-full border rounded-lg px-3 py-2 text-sm bg-white focus:outline-none'
@@ -366,6 +393,19 @@ function InfoTab({ player, teams, onSave, onDelete }: { player: Player; teams: T
       </label>
 
       <div className="flex flex-col gap-2">
+        <button
+          onClick={handleSendIntro}
+          disabled={sendingIntro}
+          className="w-full py-3 rounded-xl text-sm font-semibold uppercase tracking-wider disabled:opacity-50"
+          style={{ background: '#F6F3EE', color: '#FE5A01', border: '1px solid #FE5A01' }}
+        >
+          {sendingIntro ? 'Sending…' : '📄 Send Family Introduction'}
+        </button>
+        {introMsg && (
+          <p className="text-xs text-center font-semibold" style={{ color: introMsg.startsWith('✓') ? '#2F8F54' : '#E05A3A' }}>
+            {introMsg}
+          </p>
+        )}
         <button
           onClick={handleShareCalendar}
           disabled={sharing}
