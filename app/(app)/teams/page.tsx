@@ -6,7 +6,7 @@ import type { Team, Player } from '@/lib/types'
 import { ACTIVE_STATUSES, STATUS_COLORS } from '@/lib/types'
 import {
   getTeams, getPlayers, upsertTeam, deleteTeam, uploadTeamMascot,
-  upsertPlayer, seedPlayerDocuments, seedPlayerApparel,
+  upsertPlayer, seedPlayerDocuments, seedPlayerApparel, addPlayerToTeam,
 } from '@/lib/supabase/queries'
 import { getPlayerApparel } from '@/lib/supabase/player-detail-queries'
 import Modal from '@/components/Modal'
@@ -91,6 +91,13 @@ export default function TeamsPage() {
   const [showPlayerModal, setShowPlayerModal] = useState(false)
   const [defaultTeamId, setDefaultTeamId]     = useState<string>('')
 
+  // Add from database
+  const [showAddFromDb, setShowAddFromDb]     = useState(false)
+  const [addFromDbTeamId, setAddFromDbTeamId] = useState<string>('')
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([])
+  const [addingFromDb, setAddingFromDb]       = useState(false)
+  const [dbSearch, setDbSearch]               = useState('')
+
   // Import CSV
   const [showImportModal, setShowImportModal] = useState(false)
   const [importTeamId, setImportTeamId]       = useState('')
@@ -151,6 +158,17 @@ export default function TeamsPage() {
 
   function playersForTeam(teamId: string) {
     return players.filter(p => p.team_ids?.includes(teamId))
+  }
+
+  async function handleAddFromDb() {
+    setAddingFromDb(true)
+    await Promise.all(selectedPlayerIds.map(pid => addPlayerToTeam(pid, addFromDbTeamId)))
+    const updated = await getPlayers()
+    setPlayers(updated)
+    setShowAddFromDb(false)
+    setSelectedPlayerIds([])
+    setDbSearch('')
+    setAddingFromDb(false)
   }
 
   // ── Team form ────────────────────────────────────────────────────────────
@@ -404,7 +422,14 @@ export default function TeamsPage() {
                       className="flex-1 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider text-white"
                       style={{ background: '#FE5A01' }}
                     >
-                      + Add Player
+                      + New Player
+                    </button>
+                    <button
+                      onClick={() => { setAddFromDbTeamId(team.id); setSelectedPlayerIds([]); setDbSearch(''); setShowAddFromDb(true) }}
+                      className="flex-1 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider text-white"
+                      style={{ background: '#2F8F54' }}
+                    >
+                      + From DB
                     </button>
                     <button
                       onClick={() => exportTeamPlayRoster(team)}
@@ -538,6 +563,65 @@ export default function TeamsPage() {
           />
         </Modal>
       )}
+
+      {/* Add from DB modal */}
+      {showAddFromDb && (() => {
+        const teamName = teams.find(t => t.id === addFromDbTeamId)?.name ?? ''
+        const alreadyOn = players.filter(p => p.team_ids?.includes(addFromDbTeamId)).map(p => p.id)
+        const available = players
+          .filter(p => !alreadyOn.includes(p.id))
+          .filter(p => {
+            const q = dbSearch.toLowerCase()
+            return !q || `${p.first_name} ${p.last_name}`.toLowerCase().includes(q)
+          })
+          .sort((a, b) => a.last_name.localeCompare(b.last_name))
+        return (
+          <Modal title={`Add Players to ${teamName}`} onClose={() => setShowAddFromDb(false)}>
+            <div className="flex flex-col gap-3">
+              <input
+                className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none"
+                style={{ borderColor: '#E3DFD6' }}
+                placeholder="Search players…"
+                value={dbSearch}
+                onChange={e => setDbSearch(e.target.value)}
+              />
+              <div className="flex flex-col gap-1 max-h-72 overflow-y-auto">
+                {available.length === 0 && (
+                  <p className="text-sm text-center py-4" style={{ color: '#9B968A' }}>No players available</p>
+                )}
+                {available.map(p => (
+                  <label key={p.id} className="flex items-center gap-3 px-2 py-2 rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="checkbox"
+                      checked={selectedPlayerIds.includes(p.id)}
+                      onChange={e => setSelectedPlayerIds(ids =>
+                        e.target.checked ? [...ids, p.id] : ids.filter(i => i !== p.id)
+                      )}
+                      className="w-4 h-4" style={{ accentColor: '#FE5A01' }}
+                    />
+                    <span className="text-sm font-medium">{p.last_name}, {p.first_name}</span>
+                    <span className="text-xs ml-auto" style={{ color: '#9B968A' }}>
+                      {p.team_ids?.map(tid => teams.find(t => t.id === tid)?.name).filter(Boolean).join(', ')}
+                    </span>
+                  </label>
+                ))}
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button onClick={() => setShowAddFromDb(false)}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-semibold border"
+                  style={{ borderColor: '#E3DFD6', color: '#6F6B62' }}>
+                  Cancel
+                </button>
+                <button onClick={handleAddFromDb} disabled={selectedPlayerIds.length === 0 || addingFromDb}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50"
+                  style={{ background: '#FE5A01' }}>
+                  {addingFromDb ? 'Adding…' : `Add ${selectedPlayerIds.length > 0 ? selectedPlayerIds.length : ''} Player${selectedPlayerIds.length !== 1 ? 's' : ''}`}
+                </button>
+              </div>
+            </div>
+          </Modal>
+        )
+      })()}
 
       {/* Import CSV modal */}
       {showImportModal && (
