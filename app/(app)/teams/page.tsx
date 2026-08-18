@@ -150,7 +150,7 @@ export default function TeamsPage() {
   }, [])
 
   function playersForTeam(teamId: string) {
-    return players.filter(p => p.team_id === teamId)
+    return players.filter(p => p.team_ids?.includes(teamId))
   }
 
   // ── Team form ────────────────────────────────────────────────────────────

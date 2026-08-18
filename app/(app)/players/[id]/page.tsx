@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import type { Player, Team, Document, Assessment, Apparel } from '@/lib/types'
 import { STATUS_COLORS, POSITIONS } from '@/lib/types'
-import { getPlayer, getTeams, upsertPlayer, deletePlayer } from '@/lib/supabase/queries'
+import { getPlayer, getTeams, upsertPlayer, deletePlayer, addPlayerToTeam, removePlayerFromTeam } from '@/lib/supabase/queries'
 import {
   getPlayerDocuments, upsertDocument,
   getPlayerAssessments, upsertAssessment, deleteAssessment,
@@ -156,6 +156,8 @@ export default function PlayerDetailPage() {
 // ─── Info Tab ────────────────────────────────────────────────────────────────
 function InfoTab({ player, teams, onSave, onDelete }: { player: Player; teams: Team[]; onSave: (p: Player) => void; onDelete: () => void }) {
   const [form, setForm]         = useState({ ...player, team_id: player.team_id ?? '' })
+  const [playerTeamIds, setPlayerTeamIds] = useState<string[]>(player.team_ids ?? [])
+  const [addingTeam, setAddingTeam] = useState(false)
   const [saving, setSaving]     = useState(false)
   const [saved,  setSaved]      = useState(false)
   const [sharing, setSharing]   = useState(false)
@@ -287,16 +289,48 @@ function InfoTab({ player, teams, onSave, onDelete }: { player: Player; teams: T
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className={lbl} style={{ color: '#6F6B62' }}>Team</label>
-          <select className={field} style={{ borderColor: '#E3DFD6' }}
-            value={form.team_id}
-            onChange={e => setForm(f => ({ ...f, team_id: e.target.value }))}>
-            <option value="">Unassigned</option>
-            {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-          </select>
+      <div>
+        <label className={lbl} style={{ color: '#6F6B62' }}>Teams</label>
+        <div className="flex flex-wrap gap-2 mb-2">
+          {playerTeamIds.length === 0 && <span className="text-sm" style={{ color: '#9B968A' }}>No team assigned</span>}
+          {playerTeamIds.map(tid => {
+            const t = teams.find(t => t.id === tid)
+            if (!t) return null
+            return (
+              <span key={tid} className="flex items-center gap-1 px-2 py-1 rounded-lg text-sm font-medium"
+                style={{ background: '#F6F3EE', border: '1px solid #E3DFD6', color: '#0A0A0A' }}>
+                {t.name}
+                <button onClick={async () => {
+                  await removePlayerFromTeam(player.id, tid)
+                  setPlayerTeamIds(ids => ids.filter(i => i !== tid))
+                }} className="ml-1 text-xs" style={{ color: '#E05A3A' }}>✕</button>
+              </span>
+            )
+          })}
         </div>
+        {addingTeam ? (
+          <select className={field} style={{ borderColor: '#E3DFD6' }} defaultValue=""
+            onChange={async e => {
+              const tid = e.target.value
+              if (!tid || playerTeamIds.includes(tid)) { setAddingTeam(false); return }
+              await addPlayerToTeam(player.id, tid)
+              setPlayerTeamIds(ids => [...ids, tid])
+              setAddingTeam(false)
+            }}>
+            <option value="">— Select team —</option>
+            {teams.filter(t => !playerTeamIds.includes(t.id)).map(t =>
+              <option key={t.id} value={t.id}>{t.name}</option>
+            )}
+          </select>
+        ) : (
+          <button onClick={() => setAddingTeam(true)}
+            className="text-sm font-semibold" style={{ color: '#FE5A01' }}>
+            + Add Team
+          </button>
+        )}
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
         <div>
           <label className={lbl} style={{ color: '#6F6B62' }}>Status</label>
           <select className={field} style={{ borderColor: '#E3DFD6' }}

@@ -125,7 +125,7 @@ export default function GameCardPage() {
 
   function resetLineup(fmt: Format, form: string, tid: string) {
     const lines = FORMATION_LIBRARY[fmt].find(f => f.name === form)?.lines ?? FORMATION_LIBRARY[fmt][0].lines
-    const active = players.filter(p => p.team_id === tid && ACTIVE_STATUSES.includes(p.status)).map(p => p.id)
+    const active = players.filter(p => p.team_ids?.includes(tid) && ACTIVE_STATUSES.includes(p.status)).map(p => p.id)
     setSlots(generateSlots(lines)); setSubs(active); setExcluded([])
     setSelectedBenchId(null); setSelectedSlotId(null)
   }

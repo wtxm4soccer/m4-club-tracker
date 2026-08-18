@@ -20,6 +20,7 @@ export type Team = {
 export type Player = {
   id: string
   team_id: string | null
+  team_ids: string[]
   first_name: string
   last_name: string
   number: string | null

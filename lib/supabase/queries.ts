@@ -11,36 +11,67 @@ export async function getTeams(): Promise<Team[]> {
   return data ?? []
 }
 
+function withTeamIds(players: any[]): Player[] {
+  return players.map(p => ({
+    ...p,
+    team_ids: (p.player_teams ?? []).map((pt: any) => pt.team_id),
+  }))
+}
+
 export async function getPlayers(): Promise<Player[]> {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('players')
-    .select('*')
+    .select('*, player_teams(team_id)')
     .order('last_name')
   if (error) throw error
-  return data ?? []
+  return withTeamIds(data ?? [])
 }
 
 export async function getPlayer(id: string): Promise<Player | null> {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('players')
-    .select('*')
+    .select('*, player_teams(team_id)')
     .eq('id', id)
     .single()
   if (error) return null
-  return data
+  return withTeamIds([data])[0]
+}
+
+export async function addPlayerToTeam(playerId: string, teamId: string) {
+  const supabase = createClient()
+  const { error } = await supabase
+    .from('player_teams')
+    .upsert({ player_id: playerId, team_id: teamId }, { onConflict: 'player_id,team_id' })
+  if (error) throw error
+}
+
+export async function removePlayerFromTeam(playerId: string, teamId: string) {
+  const supabase = createClient()
+  const { error } = await supabase
+    .from('player_teams')
+    .delete()
+    .eq('player_id', playerId)
+    .eq('team_id', teamId)
+  if (error) throw error
 }
 
 export async function upsertPlayer(player: Partial<Player> & { id?: string }) {
   const supabase = createClient()
+  const { team_ids, ...rest } = player as any
   const { data, error } = await supabase
     .from('players')
-    .upsert(player)
+    .upsert(rest)
     .select()
     .single()
   if (error) throw error
-  return data
+  // Sync team_id into player_teams if set
+  if (rest.team_id && data?.id) {
+    await supabase.from('player_teams')
+      .upsert({ player_id: data.id, team_id: rest.team_id }, { onConflict: 'player_id,team_id' })
+  }
+  return { ...data, team_ids: team_ids ?? (rest.team_id ? [rest.team_id] : []) }
 }
 
 export async function deletePlayer(id: string) {
