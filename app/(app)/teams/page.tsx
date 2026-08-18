@@ -287,13 +287,18 @@ export default function TeamsPage() {
 
   async function exportTeamApparelRoster(team: Team) {
     setExportingTeamId(team.id)
-    const subset = playersForTeam(team.id)
-    const items = ['Shirt', 'Shorts', 'Pants', 'Jacket']
-    const rows: string[][] = [['First Name', 'Last Name', ...items.flatMap(i => [`${i} Size`, `${i} Issued`])]]
+    const subset = playersForTeam(team.id).sort((a, b) => a.last_name.localeCompare(b.last_name))
+    const items = ['Shirt', 'Shorts', 'Pants', 'Jacket', 'Keeper Kit']
+    const rows: string[][] = [['#', 'First Name', 'Last Name', ...items.map(i => i)]]
     for (const p of subset) {
       const apparel = await getPlayerApparel(p.id)
       const byItem = Object.fromEntries(apparel.map(a => [a.item, a]))
-      rows.push([p.first_name, p.last_name, ...items.flatMap(i => [byItem[i]?.size ?? '', byItem[i]?.status === 'issued' ? 'Yes' : 'No'])])
+      rows.push([
+        p.number ?? '',
+        p.first_name,
+        p.last_name,
+        ...items.map(i => i === 'Keeper Kit' ? (byItem[i]?.status === 'issued' ? 'Yes' : '') : (byItem[i]?.size ?? '')),
+      ])
     }
     downloadCSV(`M4_Apparel_${team.name.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.csv`, rows)
     setExportingTeamId(null)
