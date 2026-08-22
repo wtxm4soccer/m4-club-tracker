@@ -21,6 +21,7 @@ export type Player = {
   id: string
   team_id: string | null
   team_ids: string[]
+  player_team_entries: { team_id: string; is_club_pass: boolean }[]
   first_name: string
   last_name: string
   number: string | null

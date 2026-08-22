@@ -296,10 +296,12 @@ function InfoTab({ player, teams, onSave, onDelete }: { player: Player; teams: T
           {playerTeamIds.map(tid => {
             const t = teams.find(t => t.id === tid)
             if (!t) return null
+            const isCp = player.player_team_entries?.find(e => e.team_id === tid)?.is_club_pass ?? false
             return (
               <span key={tid} className="flex items-center gap-1 px-2 py-1 rounded-lg text-sm font-medium"
-                style={{ background: '#F6F3EE', border: '1px solid #E3DFD6', color: '#0A0A0A' }}>
+                style={{ background: '#F6F3EE', border: `1px solid ${isCp ? '#6B4FA0' : '#E3DFD6'}`, color: '#0A0A0A' }}>
                 {t.name}
+                {isCp && <span className="text-xs font-bold" style={{ color: '#6B4FA0' }}>CP</span>}
                 <button onClick={async () => {
                   await removePlayerFromTeam(player.id, tid)
                   setPlayerTeamIds(ids => ids.filter(i => i !== tid))

@@ -14,6 +14,7 @@ export async function getTeams(): Promise<Team[]> {
 function withTeamIds(players: any[]): Player[] {
   return players.map(p => ({
     ...p,
+    player_team_entries: (p.player_teams ?? []).map((pt: any) => ({ team_id: pt.team_id, is_club_pass: pt.is_club_pass ?? false })),
     team_ids: (p.player_teams ?? []).map((pt: any) => pt.team_id),
   }))
 }
@@ -22,13 +23,12 @@ export async function getPlayers(): Promise<Player[]> {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('players')
-    .select('*, player_teams(team_id)')
+    .select('*, player_teams(team_id, is_club_pass)')
     .order('last_name')
   if (error) {
-    // Fallback: fetch without join and use team_id for team_ids
     const { data: fallback, error: err2 } = await supabase.from('players').select('*').order('last_name')
     if (err2) throw err2
-    return (fallback ?? []).map(p => ({ ...p, team_ids: p.team_id ? [p.team_id] : [] }))
+    return (fallback ?? []).map(p => ({ ...p, team_ids: p.team_id ? [p.team_id] : [], player_team_entries: p.team_id ? [{ team_id: p.team_id, is_club_pass: false }] : [] }))
   }
   return withTeamIds(data ?? [])
 }
@@ -37,18 +37,18 @@ export async function getPlayer(id: string): Promise<Player | null> {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('players')
-    .select('*, player_teams(team_id)')
+    .select('*, player_teams(team_id, is_club_pass)')
     .eq('id', id)
     .single()
   if (error) return null
   return withTeamIds([data])[0]
 }
 
-export async function addPlayerToTeam(playerId: string, teamId: string) {
+export async function addPlayerToTeam(playerId: string, teamId: string, isClubPass = false) {
   const supabase = createClient()
   const { error } = await supabase
     .from('player_teams')
-    .upsert({ player_id: playerId, team_id: teamId }, { onConflict: 'player_id,team_id' })
+    .upsert({ player_id: playerId, team_id: teamId, is_club_pass: isClubPass }, { onConflict: 'player_id,team_id' })
   if (error) throw error
 }
 

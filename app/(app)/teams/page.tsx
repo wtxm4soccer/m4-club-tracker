@@ -95,6 +95,7 @@ export default function TeamsPage() {
   const [showAddFromDb, setShowAddFromDb]     = useState(false)
   const [addFromDbTeamId, setAddFromDbTeamId] = useState<string>('')
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([])
+  const [clubPassIds, setClubPassIds]         = useState<string[]>([])
   const [addingFromDb, setAddingFromDb]       = useState(false)
   const [dbSearch, setDbSearch]               = useState('')
 
@@ -162,11 +163,12 @@ export default function TeamsPage() {
 
   async function handleAddFromDb() {
     setAddingFromDb(true)
-    await Promise.all(selectedPlayerIds.map(pid => addPlayerToTeam(pid, addFromDbTeamId)))
+    await Promise.all(selectedPlayerIds.map(pid => addPlayerToTeam(pid, addFromDbTeamId, clubPassIds.includes(pid))))
     const updated = await getPlayers()
     setPlayers(updated)
     setShowAddFromDb(false)
     setSelectedPlayerIds([])
+    setClubPassIds([])
     setDbSearch('')
     setAddingFromDb(false)
   }
@@ -411,6 +413,9 @@ export default function TeamsPage() {
                             </span>
                             <span className="text-sm" style={{ color: '#0A0A0A' }}>
                               {p.first_name} {p.last_name}
+                              {p.player_team_entries?.find(e => e.team_id === team.id)?.is_club_pass && (
+                                <span className="ml-1 text-xs font-bold" style={{ color: '#6B4FA0' }}>CP</span>
+                              )}
                             </span>
                             <span className="text-xs uppercase" style={{ color: '#6F6B62' }}>
                               {p.positions.slice(0, 2).join(', ')}
@@ -430,7 +435,7 @@ export default function TeamsPage() {
                       + New Player
                     </button>
                     <button
-                      onClick={() => { setAddFromDbTeamId(team.id); setSelectedPlayerIds([]); setDbSearch(''); setShowAddFromDb(true) }}
+                      onClick={() => { setAddFromDbTeamId(team.id); setSelectedPlayerIds([]); setClubPassIds([]); setDbSearch(''); setShowAddFromDb(true) }}
                       className="flex-1 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider text-white"
                       style={{ background: '#2F8F54' }}
                     >
@@ -594,22 +599,30 @@ export default function TeamsPage() {
                 {available.length === 0 && (
                   <p className="text-sm text-center py-4" style={{ color: '#9B968A' }}>No players available</p>
                 )}
-                {available.map(p => (
-                  <label key={p.id} className="flex items-center gap-3 px-2 py-2 rounded-lg cursor-pointer hover:bg-gray-50">
-                    <input
-                      type="checkbox"
-                      checked={selectedPlayerIds.includes(p.id)}
-                      onChange={e => setSelectedPlayerIds(ids =>
-                        e.target.checked ? [...ids, p.id] : ids.filter(i => i !== p.id)
+                {available.map(p => {
+                  const isSelected = selectedPlayerIds.includes(p.id)
+                  const isCp = clubPassIds.includes(p.id)
+                  return (
+                    <div key={p.id} className="flex items-center gap-2 px-2 py-2 rounded-lg" style={{ background: isSelected ? '#FFF8F5' : 'transparent' }}>
+                      <input type="checkbox" checked={isSelected}
+                        onChange={e => setSelectedPlayerIds(ids => e.target.checked ? [...ids, p.id] : ids.filter(i => i !== p.id))}
+                        className="w-4 h-4 shrink-0" style={{ accentColor: '#FE5A01' }} />
+                      <span className="text-sm font-medium flex-1">{p.last_name}, {p.first_name}</span>
+                      <span className="text-xs" style={{ color: '#9B968A' }}>
+                        {p.team_ids?.map(tid => teams.find(t => t.id === tid)?.name).filter(Boolean).join(', ')}
+                      </span>
+                      {isSelected && (
+                        <label className="flex items-center gap-1 text-xs font-semibold cursor-pointer shrink-0"
+                          style={{ color: isCp ? '#6B4FA0' : '#9B968A' }}>
+                          <input type="checkbox" checked={isCp}
+                            onChange={e => setClubPassIds(ids => e.target.checked ? [...ids, p.id] : ids.filter(i => i !== p.id))}
+                            className="w-3 h-3" style={{ accentColor: '#6B4FA0' }} />
+                          CP
+                        </label>
                       )}
-                      className="w-4 h-4" style={{ accentColor: '#FE5A01' }}
-                    />
-                    <span className="text-sm font-medium">{p.last_name}, {p.first_name}</span>
-                    <span className="text-xs ml-auto" style={{ color: '#9B968A' }}>
-                      {p.team_ids?.map(tid => teams.find(t => t.id === tid)?.name).filter(Boolean).join(', ')}
-                    </span>
-                  </label>
-                ))}
+                    </div>
+                  )
+                })}
               </div>
               <div className="flex gap-2 pt-1">
                 <button onClick={() => setShowAddFromDb(false)}
