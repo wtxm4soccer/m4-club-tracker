@@ -24,7 +24,12 @@ export async function getPlayers(): Promise<Player[]> {
     .from('players')
     .select('*, player_teams(team_id)')
     .order('last_name')
-  if (error) throw error
+  if (error) {
+    // Fallback: fetch without join and use team_id for team_ids
+    const { data: fallback, error: err2 } = await supabase.from('players').select('*').order('last_name')
+    if (err2) throw err2
+    return (fallback ?? []).map(p => ({ ...p, team_ids: p.team_id ? [p.team_id] : [] }))
+  }
   return withTeamIds(data ?? [])
 }
 
