@@ -402,8 +402,12 @@ export default function TeamsPage() {
                         .map(p => (
                           <button
                             key={p.id}
-                            className="grid items-center py-1.5 w-full text-left"
-                            style={{ gridTemplateColumns: '10px 34px 1fr auto', gap: 8 }}
+                            className="grid items-center py-1.5 w-full text-left rounded-lg px-1"
+                            style={{
+                              gridTemplateColumns: '10px 34px 1fr auto', gap: 8,
+                              background: p.player_team_entries?.find(e => e.team_id === team.id)?.is_club_pass
+                                ? 'rgba(254,90,1,0.12)' : 'transparent',
+                            }}
                             onClick={() => router.push(`/players/${p.id}`)}
                           >
                             <div className="w-2 h-2 rounded-full" style={{ background: STATUS_COLORS[p.status] }} />
@@ -414,7 +418,7 @@ export default function TeamsPage() {
                             <span className="text-sm" style={{ color: '#0A0A0A' }}>
                               {p.first_name} {p.last_name}
                               {p.player_team_entries?.find(e => e.team_id === team.id)?.is_club_pass && (
-                                <span className="ml-1 text-xs font-bold" style={{ color: '#6B4FA0' }}>CP</span>
+                                <span className="ml-1 text-xs font-bold" style={{ color: '#FE5A01' }}>CP</span>
                               )}
                             </span>
                             <span className="text-xs uppercase" style={{ color: '#6F6B62' }}>
