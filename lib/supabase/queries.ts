@@ -64,7 +64,7 @@ export async function removePlayerFromTeam(playerId: string, teamId: string) {
 
 export async function upsertPlayer(player: Partial<Player> & { id?: string }) {
   const supabase = createClient()
-  const { team_ids, player_teams, ...rest } = player as any
+  const { team_ids, player_teams, player_team_entries, ...rest } = player as any
   const { data, error } = await supabase
     .from('players')
     .upsert(rest)
