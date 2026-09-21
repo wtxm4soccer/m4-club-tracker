@@ -85,6 +85,7 @@ export default function TeamsPage() {
   const [teamCalendarUrl, setTeamCalendarUrl] = useState('')
   const [mascotFile, setMascotFile]           = useState<File | null>(null)
   const [mascotPreview, setMascotPreview]     = useState<string>('')
+  const [clearMascot, setClearMascot]         = useState(false)
   const [savingTeam, setSavingTeam]           = useState(false)
 
   // Player form
@@ -184,7 +185,7 @@ export default function TeamsPage() {
     setEditTeam(team); setTeamName(team.name); setTeamDivision(team.division ?? '')
     setTeamTemplateId(team.docuseal_template_id ?? '')
     setTeamCalendarUrl(team.calendar_url ?? ''); setMascotFile(null)
-    setMascotPreview(team.photo_url ?? ''); setShowTeamModal(true)
+    setMascotPreview(team.photo_url ?? ''); setClearMascot(false); setShowTeamModal(true)
   }
 
   function handleMascotPick(e: React.ChangeEvent<HTMLInputElement>) {
@@ -205,6 +206,9 @@ export default function TeamsPage() {
       const url = await uploadTeamMascot(saved.id, mascotFile)
       await upsertTeam({ id: saved.id, name: saved.name, photo_url: url })
       saved.photo_url = url
+    } else if (clearMascot) {
+      await upsertTeam({ id: saved.id, name: saved.name, photo_url: null })
+      saved.photo_url = null
     }
     setTeams(prev => {
       const idx = prev.findIndex(t => t.id === saved.id)
@@ -548,6 +552,13 @@ export default function TeamsPage() {
                   {mascotPreview ? 'Change Photo' : 'Upload Photo'}
                   <input type="file" accept="image/*" className="hidden" onChange={handleMascotPick} />
                 </label>
+                {mascotPreview && (
+                  <button type="button" onClick={() => { setMascotPreview(''); setMascotFile(null); setClearMascot(true) }}
+                    className="py-2 px-3 rounded-lg text-xs font-semibold uppercase"
+                    style={{ background: '#FEE2E2', color: '#DC2626' }}>
+                    Remove
+                  </button>
+                )}
               </div>
             </div>
             <div className="flex gap-3">
