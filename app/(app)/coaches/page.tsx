@@ -117,6 +117,8 @@ export default function CoachesPage() {
   const [agreementMsg, setAgreementMsg] = useState<Record<string, string>>({})
   const [inviting, setInviting] = useState<string | null>(null)
   const [inviteMsg, setInviteMsg] = useState<Record<string, string>>({})
+  const [resetting, setResetting] = useState<string | null>(null)
+  const [resetMsg, setResetMsg] = useState<Record<string, string>>({})
 
   async function handleInviteCoach(coach: Coach) {
     if (!coach.email) { alert('Add an email to this coach first.'); return }
@@ -135,6 +137,25 @@ export default function CoachesPage() {
     } else {
       const data = await res.json()
       alert(`Failed to send invite: ${data.error ?? 'Unknown error'}`)
+    }
+  }
+
+  async function handleResetCoach(coach: Coach) {
+    if (!coach.email) { alert('Add an email to this coach first.'); return }
+    if (!confirm(`Send a password reset to ${coach.email}?`)) return
+    setResetting(coach.id)
+    const res = await fetch('/api/auth/reset-coach', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: coach.email, name: `${coach.first_name} ${coach.last_name}` }),
+    })
+    setResetting(null)
+    if (res.ok) {
+      setResetMsg(prev => ({ ...prev, [coach.id]: 'Reset sent!' }))
+      setTimeout(() => setResetMsg(prev => ({ ...prev, [coach.id]: '' })), 4000)
+    } else {
+      const data = await res.json()
+      alert(`Failed: ${data.error ?? 'Unknown error'}`)
     }
   }
 
@@ -338,15 +359,26 @@ export default function CoachesPage() {
                     <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#6F6B62' }}>
                       App Access
                     </p>
-                    <button
-                      onClick={() => handleInviteCoach(coach)}
-                      disabled={inviting === coach.id}
-                      className="w-full py-1.5 px-3 rounded-lg text-xs font-semibold uppercase disabled:opacity-50"
-                      style={{ background: '#2C3A5218', color: '#2C3A52', border: '1px solid #2C3A5230' }}
-                    >
-                      {inviting === coach.id ? 'Sending…' :
-                       inviteMsg[coach.id] ? inviteMsg[coach.id] : '✉ Send Login Invite'}
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleInviteCoach(coach)}
+                        disabled={inviting === coach.id}
+                        className="flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold uppercase disabled:opacity-50"
+                        style={{ background: '#2C3A5218', color: '#2C3A52', border: '1px solid #2C3A5230' }}
+                      >
+                        {inviting === coach.id ? 'Sending…' :
+                         inviteMsg[coach.id] ? inviteMsg[coach.id] : '✉ Invite'}
+                      </button>
+                      <button
+                        onClick={() => handleResetCoach(coach)}
+                        disabled={resetting === coach.id}
+                        className="flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold uppercase disabled:opacity-50"
+                        style={{ background: '#FFF3EE', color: '#FE5A01', border: '1px solid #FE5A0130' }}
+                      >
+                        {resetting === coach.id ? 'Sending…' :
+                         resetMsg[coach.id] ? resetMsg[coach.id] : '🔑 Reset PW'}
+                      </button>
+                    </div>
                   </div>
 
                   {/* Actions */}
