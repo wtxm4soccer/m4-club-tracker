@@ -293,7 +293,7 @@ export default function TeamsPage() {
 
   async function exportTeamApparelRoster(team: Team) {
     setExportingTeamId(team.id)
-    const subset = playersForTeam(team.id).sort((a, b) => a.last_name.localeCompare(b.last_name))
+    const subset = playersForTeam(team.id).filter(p => ACTIVE_STATUSES.includes(p.status)).sort((a, b) => a.last_name.localeCompare(b.last_name))
     const items = ['Shirt', 'Shorts', 'Pants', 'Jacket', 'Keeper Kit']
     const rows: string[][] = [['#', 'First Name', 'Last Name', ...items.map(i => i)]]
     for (const p of subset) {
