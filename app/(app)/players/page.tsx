@@ -36,7 +36,7 @@ export default function PlayersPage() {
       if (filterStatus === 'active' && !ACTIVE_STATUSES.includes(p.status)) return false
       if (filterStatus !== 'active' && filterStatus !== 'all' && p.status !== filterStatus) return false
       // Team filter
-      if (filterTeam && p.team_id !== filterTeam) return false
+      if (filterTeam && !p.team_ids?.includes(filterTeam)) return false
       // Search
       if (search) {
         const q = search.toLowerCase()
@@ -176,7 +176,7 @@ export default function PlayersPage() {
                     {player.first_name} {player.last_name}
                   </div>
                   <div className="text-xs truncate" style={{ color: '#6F6B62' }}>
-                    {teamName(player.team_id)}
+                    {player.team_ids?.length ? player.team_ids.map(id => teamName(id)).join(', ') : 'Unassigned'}
                     {player.positions.length > 0 && ` · ${player.positions.slice(0, 3).join(', ')}`}
                   </div>
                 </div>

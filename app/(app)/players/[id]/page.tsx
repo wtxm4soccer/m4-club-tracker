@@ -61,7 +61,7 @@ export default function PlayerDetailPage() {
   if (loading) return <div className="px-5 pt-8 text-sm" style={{ color: '#6F6B62' }}>Loading…</div>
   if (!player)  return <div className="px-5 pt-8 text-sm" style={{ color: '#E05A3A' }}>Player not found.</div>
 
-  const teamName = teams.find(t => t.id === player.team_id)?.name ?? 'Unassigned'
+  const teamName = player.team_ids?.length ? player.team_ids.map(id => teams.find(t => t.id === id)?.name).filter(Boolean).join(', ') : 'Unassigned'
 
   return (
     <div className="flex flex-col min-h-full">
@@ -233,7 +233,7 @@ function InfoTab({ player, teams, onSave, onDelete }: { player: Player; teams: T
 
   async function handleSendIntro() {
     if (!player.parent_email && !player.parent2_email) { alert('No parent email on file. Add one above first.'); return }
-    const team = teams.find(t => t.id === form.team_id)
+    const team = teams.find(t => player.team_ids?.includes(t.id))
     setSendingIntro(true); setIntroMsg('')
     const sends = []
     if (player.parent_email) {

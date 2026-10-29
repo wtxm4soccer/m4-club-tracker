@@ -136,7 +136,7 @@ export default function ImportPage() {
   }
 
   async function exportPlayRoster() {
-    const subset = exportTeamId === 'all' ? players : players.filter(p => p.team_id === exportTeamId)
+    const subset = exportTeamId === 'all' ? players : players.filter(p => p.team_ids?.includes(exportTeamId))
     const teamMap = Object.fromEntries(teams.map(t => [t.id, t.name]))
     const rows = [
       ['#', 'First Name', 'Last Name', 'DOB', 'Positions', 'Status', 'Team', 'Parent Name', 'Parent Phone', 'Parent Email', 'Emergency Contact', 'Emergency Phone'],
@@ -147,7 +147,7 @@ export default function ImportPage() {
         p.dob ?? '',
         p.positions.join(', '),
         p.status,
-        p.team_id ? teamMap[p.team_id] ?? '' : '',
+        p.team_ids?.length ? p.team_ids.map(id => teamMap[id] ?? '').filter(Boolean).join(', ') : '',
         p.parent_name ?? '',
         p.parent_phone ?? '',
         p.parent_email ?? '',
@@ -160,7 +160,7 @@ export default function ImportPage() {
   }
 
   async function exportApparelRoster() {
-    const subset = exportTeamId === 'all' ? players : players.filter(p => p.team_id === exportTeamId)
+    const subset = exportTeamId === 'all' ? players : players.filter(p => p.team_ids?.includes(exportTeamId))
     const teamMap = Object.fromEntries(teams.map(t => [t.id, t.name]))
     const items = ['Shirt', 'Shorts', 'Pants', 'Jacket']
     const rows: string[][] = [['First Name', 'Last Name', 'Team', ...items.flatMap(i => [`${i} Size`, `${i} Issued`])]]
@@ -169,7 +169,7 @@ export default function ImportPage() {
       const byItem = Object.fromEntries(apparel.map(a => [a.item, a]))
       rows.push([
         p.first_name, p.last_name,
-        p.team_id ? teamMap[p.team_id] ?? '' : '',
+        p.team_ids?.length ? p.team_ids.map(id => teamMap[id] ?? '').filter(Boolean).join(', ') : '',
         ...items.flatMap(i => [byItem[i]?.size ?? '', byItem[i]?.status === 'issued' ? 'Yes' : 'No'])
       ])
     }
