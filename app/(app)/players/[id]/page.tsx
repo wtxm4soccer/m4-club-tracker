@@ -145,7 +145,7 @@ export default function PlayerDetailPage() {
       {/* Tab content */}
       <div className="flex-1 px-5 py-4">
         {activeTab === 'info'        && <InfoTab        player={player} teams={teams} onSave={setPlayer} onDelete={() => router.replace('/players')} />}
-        {activeTab === 'documents'   && <DocumentsTab   player={player} team={teams.find(t => t.id === player.team_id) ?? null} documents={documents} setDocuments={setDocuments} />}
+        {activeTab === 'documents'   && <DocumentsTab   player={player} team={teams.find(t => player.team_ids?.includes(t.id) && t.docuseal_template_id) ?? teams.find(t => player.team_ids?.includes(t.id)) ?? null} documents={documents} setDocuments={setDocuments} />}
         {activeTab === 'assessments' && <AssessmentsTab playerId={id} assessments={assessments} setAssessments={setAssessments} showForm={showAssessmentForm} setShowForm={setShowAssessmentForm} />}
         {activeTab === 'apparel'     && <ApparelTab     playerId={id} apparel={apparel} setApparel={setApparel} />}
       </div>
