@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
+  const webcalUrl = calendarUrl.replace(/^https?:\/\//, 'webcal://')
   try {
     await resend.emails.send({
       from: 'M4 Soccer Academy <noreply@wtxm4soccer.com>',
@@ -19,12 +20,12 @@ export async function POST(req: NextRequest) {
           <h2 style="margin:0 0 8px;font-size:24px">M4 Soccer Academy</h2>
           <p>Hi ${parentName || 'there'},</p>
           <p>Here is the practice and event calendar for <strong>${playerName}</strong>'s team (<strong>${teamName}</strong>).</p>
-          <p>Tap the button below to add the team calendar to your device.</p>
-          <p style="font-size:13px;color:#555">If the button does not work, copy and paste the link at the bottom of this email directly into your browser.</p>
-          <a href="${calendarUrl}" style="display:inline-block;margin:16px 0;padding:12px 28px;background:#FE5A01;color:#fff;text-decoration:none;border-radius:8px;font-weight:600">
+          <p>Tap the button below to add the team calendar to your device. <strong>iPhone users:</strong> this will open in your Apple Calendar app.</p>
+          <a href="${webcalUrl}" style="display:inline-block;margin:16px 0;padding:12px 28px;background:#FE5A01;color:#fff;text-decoration:none;border-radius:8px;font-weight:600">
             Add Team Calendar
           </a>
-          <p style="font-size:13px;color:#555;word-break:break-all;margin-top:8px">${calendarUrl}</p>
+          <p style="font-size:13px;color:#555">If the button does not work, copy and paste the link below directly into your browser:</p>
+          <p style="font-size:13px;color:#555;word-break:break-all;margin-top:4px">${calendarUrl}</p>
           <p style="color:#888;font-size:12px">Love God · Love People · Play Soccer</p>
         </div>
       `,
